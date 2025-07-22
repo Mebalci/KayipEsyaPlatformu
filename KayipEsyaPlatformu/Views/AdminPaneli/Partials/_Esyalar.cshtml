@@ -1,0 +1,135 @@
+<style>
+    .admin-esya-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .admin-esya-card {
+        background: linear-gradient(135deg, #253a61 80%, #162a46 100%);
+        border-radius: 2rem;
+        box-shadow: 0 10px 30px rgba(31,63,140,0.16);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 320px;
+        position: relative;
+        padding: 2.2rem 1.6rem 1.4rem 1.6rem;
+        transition: box-shadow 0.18s, transform 0.14s;
+        border: 1.5px solid #233563;
+    }
+    .admin-esya-card:hover {
+        box-shadow: 0 24px 48px rgba(63,104,249,0.18);
+        transform: translateY(-7px) scale(1.016);
+        border-color: #3f68f9;
+    }
+    .admin-esya-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.48rem;
+        color: #f7f8fa;
+        min-height: 2.2em;
+    }
+    .admin-esya-date {
+        font-size: 1rem;
+        color: #b8cbfa;
+        margin-bottom: 0.55rem;
+        font-weight: 500;
+    }
+    .admin-esya-status {
+        margin-bottom: 1.1rem;
+    }
+    .admin-esya-status strong {
+        font-weight: 700;
+        margin-right: 4px;
+        font-size: 1rem;
+    }
+    .admin-esya-status .badge {
+        font-size: 0.99rem;
+        padding: 0.59em 1.18em;
+        border-radius: 1.3rem;
+        font-weight: 600;
+        background: #e13a3a;
+        display: inline-block;
+    }
+    .admin-esya-status .bg-success { background: #37b84a !important; }
+    .admin-esya-status .bg-secondary { background: #949ca7 !important; }
+    .admin-esya-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+    .admin-btn-esya-edit, .admin-btn-esya-sil, .admin-btn-esya-detail {
+        width: 100%;
+        justify-content: center;
+        border-radius: 0.5rem !important;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.85em 0;
+        margin: 0;
+        box-shadow: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .admin-btn-esya-edit { background: #3f68f9; color: #fff; }
+    .admin-btn-esya-edit:hover { background: #2238a8; color: #fff; }
+    .admin-btn-esya-sil { background: #e13a3a; color: #fff; }
+    .admin-btn-esya-sil:hover { background: #ba2525; color: #fff; }
+    .admin-btn-esya-detail {
+        border: 1px solid white;
+        color: white;
+        background: transparent;
+        font-size: 0.97rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .admin-btn-esya-detail:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+    }
+    .admin-esya-user {
+        color: #b8cbfa;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.7rem;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .admin-esya-user:hover { color: #3f68f9; }
+    .admin-esya-search {
+        margin-bottom: 1.2rem;
+        max-width: 350px;
+    }
+</style>
+<div class="main-area">
+    <input type="text" class="form-control admin-esya-search" id="esyaArama" placeholder="Eşya veya kullanıcı ara..." />
+    <div class="admin-esya-row" id="admin-esya-listesi">
+        <!-- Eşyalar AJAX ile yüklenecek -->
+    </div>
+</div>  
+<div class="modal fade" id="kullaniciDetayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">            
+            <div class="modal-body" id="kullaniciDetayIcerik">
+                <!-- Kullanıcı detay kartı AJAX ile yüklenecek -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal for Düzenle -->
+<div class="modal fade" id="adminEsyaEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-light" id="modalEsyaEditContent">
+            <!-- Düzenleme formu AJAX ile yüklenecek -->
+        </div>
+    </div>
+</div>

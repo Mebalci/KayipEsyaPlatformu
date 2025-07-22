@@ -1,0 +1,169 @@
+<style>
+    .admin-panel-table { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table th { background: #22345a; color: #b8cbfa; font-weight: 600; cursor: pointer; user-select: none; }
+    .admin-panel-table td { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table tr { border-bottom: 1px solid #233563; transition: background-color 0.2s; }
+    .admin-panel-table tr:hover { background-color: #1e3a5a !important; }
+    .admin-panel-table tr:last-child { border-bottom: none; }
+    .admin-panel-table .btn-danger, .admin-panel-table .btn-warning { border-radius: 0.5rem; font-weight: 600; padding: 0.4em 1.1em; font-size: 0.98rem; }
+    .admin-panel-search { margin-bottom: 1.2rem; max-width: 350px; }
+    .admin-panel-add-btn { background: #3f68f9; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; margin-bottom: 1.2rem; }
+    .admin-panel-add-btn:hover { background: #2238a8; color: #fff; }
+    .rol-ad { cursor: pointer; color: #66ccff; text-decoration: underline; }
+    .rol-ad:hover { color: #99ddff; }
+</style>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="text" class="form-control admin-panel-search" id="rolArama" placeholder="Rol ara..." />
+    <button class="btn admin-panel-add-btn" onclick="rolEkleModalAc()">
+        <i class="fas fa-plus me-2"></i>Yeni Rol Ekle
+    </button>
+</div>
+<table class="table admin-panel-table table-bordered align-middle" id="roller-tablosu">
+    <thead>
+        <tr>
+            <th onclick="rolTabloSirala(0)">#</th>
+            <th onclick="rolTabloSirala(1)">Rol Adı</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<!-- Ekle Modal -->
+<div class="modal fade" id="rolEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni Rol Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rolEkleForm">
+                    <div class="mb-3">
+                        <label for="rolAd" class="form-label">Rol Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="rolAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="rolEkle()">Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Düzenle Modal -->
+<div class="modal fade" id="rolDuzenleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Rol Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rolDuzenleForm">
+                    <input type="hidden" id="duzenleRolId">
+                    <div class="mb-3">
+                        <label for="duzenleRolAd" class="form-label">Rol Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="duzenleRolAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-warning" onclick="rolDuzenle()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function(){
+let rolTabloVeri = [];
+let rolTabloSiralaKriter = 0;
+let rolTabloSiralaAsc = true;
+function rollerYukle() {
+    $.get('/AdminPaneli/RolleriGetir', function(data) {
+        rolTabloVeri = data;
+        rolTabloFiltreleVeGoster();
+    });
+}
+function rolTabloFiltreleVeGoster() {
+    var arama = $('#rolArama').val().toLowerCase();
+    var filtreli = rolTabloVeri.filter(function(r) {
+        return r.ad.toLowerCase().includes(arama);
+    });
+    filtreli.sort(function(a, b) {
+        let alanlar = ['id','ad'];
+        let key = alanlar[rolTabloSiralaKriter];
+        let valA = a[key];
+        let valB = b[key];
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return rolTabloSiralaAsc ? -1 : 1;
+        if (valA > valB) return rolTabloSiralaAsc ? 1 : -1;
+        return 0;
+    });
+    var tbody = '';
+    filtreli.forEach(function(r, i) {
+        tbody += `<tr>
+            <td>${i+1}</td>
+            <td><span class="rol-ad" onclick="rolDuzenleModalAc('${r.id}', '${r.ad}')">${r.ad}</span></td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="rolDuzenleModalAc('${r.id}', '${r.ad}')"><i class="fas fa-edit"></i> Düzenle</button>
+                <button class="btn btn-danger btn-sm" onclick="rolSil('${r.id}')"><i class="fas fa-trash"></i> Sil</button>
+            </td>
+        </tr>`;
+    });
+    $('#roller-tablosu tbody').html(tbody);
+}
+function rolSil(id) {
+    if (!confirm('Bu rolü silmek istediğinize emin misiniz?')) return;
+    $.post('/AdminPaneli/RolSil', { id: id }, function(resp) {
+        alert(resp.message);
+        if (resp.success) rollerYukle();
+    });
+}
+window.rolTabloSirala = function(kriter) {
+    if (rolTabloSiralaKriter === kriter) {
+        rolTabloSiralaAsc = !rolTabloSiralaAsc;
+    } else {
+        rolTabloSiralaAsc = true;
+    }
+    rolTabloSiralaKriter = kriter;
+    rolTabloFiltreleVeGoster();
+}
+window.rolEkleModalAc = function() {
+    $('#rolAd').val('');
+    $('#rolEkleModal').modal('show');
+}
+window.rolEkle = function() {
+    var ad = $('#rolAd').val().trim();
+    if (!ad) { alert('Rol adı boş olamaz.'); return; }
+    $.post('/AdminPaneli/RolEkle', { ad: ad }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#rolEkleModal').modal('hide');
+            rollerYukle();
+        }
+    });
+}
+window.rolDuzenleModalAc = function(id, ad) {
+    $('#duzenleRolId').val(id);
+    $('#duzenleRolAd').val(ad);
+    $('#rolDuzenleModal').modal('show');
+}
+window.rolDuzenle = function() {
+    var id = $('#duzenleRolId').val();
+    var ad = $('#duzenleRolAd').val().trim();
+    if (!ad) { alert('Rol adı boş olamaz.'); return; }
+    $.post('/AdminPaneli/RolDuzenle', { id: id, ad: ad }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#rolDuzenleModal').modal('hide');
+            rollerYukle();
+        }
+    });
+}
+$('#rolArama').on('input', rolTabloFiltreleVeGoster);
+$(function(){ rollerYukle(); });
+})();
+</script> 

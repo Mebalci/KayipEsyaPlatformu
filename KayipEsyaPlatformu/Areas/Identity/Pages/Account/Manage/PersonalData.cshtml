@@ -1,0 +1,21 @@
+﻿@page
+@model PersonalDataModel
+@{
+    ViewData["Title"] = "Kişisel Veriler";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+     
+}
+
+<h3 class="text-white mb-4">Kişisel Verileriniz</h3>
+
+<div class="alert alert-warning text-white">
+    <strong>Dikkat:</strong> Bu sayfa, hesabınızla ilgili kişisel verilerinizi gösterir. Lütfen dikkatli olun.
+</div>
+
+<form method="post" asp-page-handler="Download">
+    <button class="btn btn-outline-info" type="submit">Verileri İndir</button>
+</form>
+
+<br />
+
+<a asp-page="./DeletePersonalData" class="btn btn-outline-danger">Hesabımı Sil</a>

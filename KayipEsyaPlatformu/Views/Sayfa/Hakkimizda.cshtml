@@ -1,0 +1,160 @@
+@model KayipEsyaPlatformu.Models.Hakkimizda
+
+@{
+    ViewData["Title"] = Model.Baslik;
+}
+
+<style>
+    .about-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        color: #326fa6;
+        letter-spacing: 1px;
+        margin-bottom: 1.2rem;
+        text-shadow: 0 2px 8px rgba(41,134,249,0.08);
+    }
+    .about-desc {
+        font-size: 1.18rem;
+        color: #e5eaf6;
+        margin-bottom: 2.5rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+    .about-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .about-card {
+        background: #0d1c33;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px rgba(50,111,166,0.10);
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        border: 1.5px solid #253a61;
+        color: #e5eaf6;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: box-shadow 0.18s, transform 0.14s, border-color 0.18s;
+    }
+    .about-card:hover {
+        box-shadow: 0 8px 32px rgba(50,111,166,0.18);
+        transform: translateY(-4px) scale(1.01);
+        border-color: #326fa6;
+    }
+    .about-card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.7rem;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .about-card-content {
+        font-size: 1.08rem;
+        color: #c7d3e6;
+        line-height: 1.6;
+    }
+    .about-history-card {
+        background: #15305a;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px rgba(50,111,166,0.10);
+        padding: 2.2rem 2rem 1.5rem 2rem;
+        border: 1.5px solid #253a61;
+        color: #e5eaf6;
+        margin-top: 2.5rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        transition: box-shadow 0.18s, transform 0.14s, border-color 0.18s;
+    }
+    .about-history-card:hover {
+        box-shadow: 0 8px 32px rgba(50,111,166,0.18);
+        transform: translateY(-4px) scale(1.01);
+        border-color: #326fa6;
+    }
+    .about-history-title {
+        position: absolute;
+        top: -1.2rem;
+        left: 2rem;
+        background: #326fa6;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.25rem;
+        padding: 0.3rem 1.2rem;
+        border-radius: 0.7rem 0.7rem 0 0;
+        box-shadow: 0 2px 8px rgba(50,111,166,0.10);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    @@media (max-width: 900px) {
+        .about-cards {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+        .about-history-card { padding: 1.5rem 0.7rem 1.2rem 0.7rem; }
+    }
+    @@media (max-width: 600px) {
+        .about-title { font-size: 2.1rem; }
+        .about-history-title { left: 1rem; font-size: 1.05rem; }
+        .about-history-card { padding: 1.2rem 0.7rem 1rem 0.7rem; }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center">
+        <div class="about-title">
+            <i class="fas fa-info-circle me-2"></i>@Model.Baslik
+        </div>
+        <div class="about-desc">
+            @Model.Icerik
+        </div>
+    </div>
+    <div class="about-cards">
+        @if (!string.IsNullOrEmpty(Model.Misyon))
+        {
+            <div class="about-card">
+                <div class="about-card-title"><i class="fas fa-bullseye text-success"></i> Misyonumuz</div>
+                <div class="about-card-content">@Model.Misyon</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Vizyon))
+        {
+            <div class="about-card">
+                <div class="about-card-title"><i class="fas fa-eye text-info"></i> Vizyonumuz</div>
+                <div class="about-card-content">@Model.Vizyon</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Degerlerimiz))
+        {
+            <div class="about-card">
+                <div class="about-card-title"><i class="fas fa-heart text-danger"></i> Değerlerimiz</div>
+                <div class="about-card-content">@Model.Degerlerimiz</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Ekibimiz))
+        {
+            <div class="about-card">
+                <div class="about-card-title"><i class="fas fa-users text-secondary"></i> Ekibimiz</div>
+                <div class="about-card-content">@Model.Ekibimiz</div>
+            </div>
+        }
+    </div>
+    @if (!string.IsNullOrEmpty(Model.Tarihce))
+    {
+        <div class="about-history-card mt-5">
+            <div class="about-history-title"><i class="fas fa-history me-2"></i>Tarihçemiz</div>
+            <div style="margin-top: 2.5rem;">
+                @Model.Tarihce
+            </div>
+        </div>
+    }
+</div> 

@@ -1,0 +1,206 @@
+@model Kullanici
+@{
+    var ilanlar = ViewBag.Ilanlar as List<KayipEsyaPlatformu.Models.Esya>;
+    var roller = ViewBag.Roller as IEnumerable<string>;
+    var mevcutRol = roller?.FirstOrDefault() ?? "User";
+}
+@if (Model == null)
+{
+    <div class="alert alert-danger">Kullanıcı bulunamadı.</div>
+}
+else
+{
+    <div class="admin-esya-card position-relative" style="max-width:600px; margin:40px auto;">
+        <div class="d-flex align-items-center justify-content-between mb-2" style="gap: 1rem;">
+            <span class="fw-bold fs-5"> Detay</span>
+            <button type="button" class="btn-close btn-close-white" style="background-color: rgba(0,0,0,0.18); border-radius: 50%; padding: 0.7rem;" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        </div>
+        <hr style="border-color: #b8cbfa; opacity: 0.25; margin-top: 0; margin-bottom: 1.2rem;" />
+        <div class="d-flex flex-column h-100">
+            <div>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3"><i class="fas fa-user-circle"></i></div>
+                    <div>
+                        <div class="admin-esya-title mb-1">@Model.Ad @Model.Soyad</div>
+                        <div class="text-secondary">@Model.UserName</div>
+                        <span class="badge bg-@(Model.AktifMi ? "success" : "danger") mt-2">@(Model.AktifMi ? "Aktif" : "Pasif")</span>
+                    </div>
+                </div>
+                <div class="admin-esya-status mb-2"><strong>Kullanıcı ID:</strong> @Model.Id</div>
+                <div class="admin-esya-status mb-2"><strong>E-posta:</strong> @Model.Email <span class="badge bg-@(Model.EmailConfirmed ? "success" : "danger") ms-2">@(Model.EmailConfirmed ? "Doğrulandı" : "Doğrulanmadı")</span></div>
+                <div class="admin-esya-status mb-2"><strong>Telefon:</strong> @Model.PhoneNumber <span class="badge bg-@(Model.PhoneNumberConfirmed ? "success" : "danger") ms-2">@(Model.PhoneNumberConfirmed ? "Doğrulandı" : "Doğrulanmadı")</span></div>
+                
+                <!-- Rol Düzenleme Alanı -->
+                <div class="admin-esya-status mb-3">
+                    <strong>Rol:</strong>
+                    <div class="d-flex align-items-center mt-2" style="gap: 0.5rem;">
+                        <select id="kullaniciRolSelect" class="form-select form-select-sm" style="max-width: 200px; background: rgba(255,255,255,0.1); border: 1px solid #b8cbfa; color: #fff;">
+                            @if (mevcutRol == "Kullanici")
+                            {
+                                <option value="Kullanici" selected>Kullanıcı</option>
+                            }
+                            else
+                            {
+                                <option value="Kullanici">Kullanıcı</option>
+                            }
+                            @if (mevcutRol == "Admin")
+                            {
+                                <option value="Admin" selected>Admin</option>
+                            }
+                            else
+                            {
+                                <option value="Admin">Admin</option>
+                            }                            
+                        </select>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="kullaniciRolGuncelle('@Model.Id')" style="background: #37b84a; border: none; padding: 0.375rem 0.75rem;">
+                            <i class="fas fa-save me-1"></i>Güncelle
+                        </button>
+                        <div id="rolGuncellemeDurum" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm text-success" role="status"></span>
+                            <span class="text-success ms-1">Güncelleniyor...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-esya-status mb-2"><strong>İki Adımlı Doğrulama:</strong> @((Model.TwoFactorEnabled) ? "Açık" : "Kapalı")</div>
+                <div class="admin-esya-status mb-2"><strong>Hesap Kilitli mi?:</strong> @((Model.LockoutEnabled) ? (Model.LockoutEnd != null ? "Evet, " + Model.LockoutEnd?.ToString("yyyy-MM-dd HH:mm") : "Hayır") : "Hayır")</div>
+                <div class="admin-esya-status mb-2"><strong>Başarısız Giriş:</strong> @Model.AccessFailedCount</div>
+            </div>
+            <div class="mt-4">
+                <div class="admin-esya-title mb-2"><i class="fas fa-box me-2"></i>Kullanıcıya Ait İlanlar</div>
+                @if (ilanlar != null && ilanlar.Count > 0)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var ilan in ilanlar)
+                        {
+                            <li class="list-group-item bg-transparent text-light mb-1 border-0">
+                                <strong>@ilan.Baslik</strong> <span class="badge bg-secondary ms-2">@ilan.Durum?.Ad</span>
+                                <span class="ms-2 text-info">@ilan.Tarih.ToString("yyyy-MM-dd")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="text-muted">Kullanıcıya ait ilan yok.</div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function kullaniciRolGuncelle(kullaniciId) {
+            const yeniRol = document.getElementById('kullaniciRolSelect').value;
+            const durumElement = document.getElementById('rolGuncellemeDurum');
+            const guncelleBtn = event.target;
+            
+            // Butonu devre dışı bırak ve durum göster
+            guncelleBtn.disabled = true;
+            durumElement.style.display = 'inline-flex';
+            
+            $.ajax({
+                url: '/AdminPaneli/KullaniciDuzenle',
+                type: 'POST',
+                data: {
+                    kullaniciId: kullaniciId,
+                    yeniRol: yeniRol
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Başarılı güncelleme
+                        durumElement.innerHTML = '<i class="fas fa-check text-success"></i><span class="text-success ms-1">Güncellendi!</span>';
+                        setTimeout(() => {
+                            durumElement.style.display = 'none';
+                            guncelleBtn.disabled = false;
+                            // Modal'ı kapat ve tabloyu yenile
+                            $('#kullaniciDetayModal').modal('hide');
+                            // Kullanıcılar tablosunu yenile
+                            if (typeof kullanicilariYukle === 'function') {
+                                kullanicilariYukle();
+                            }
+                            // Başarı mesajı göster
+                            alert('Kullanıcı rolü başarıyla güncellendi!');
+                        }, 1500);
+                    } else {
+                        // Hata durumu
+                        durumElement.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i><span class="text-danger ms-1">Hata!</span>';
+                        setTimeout(() => {
+                            durumElement.style.display = 'none';
+                            guncelleBtn.disabled = false;
+                        }, 2000);
+                    }
+                },
+                error: function() {
+                    // AJAX hatası
+                    durumElement.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i><span class="text-danger ms-1">Bağlantı hatası!</span>';
+                    setTimeout(() => {
+                        durumElement.style.display = 'none';
+                        guncelleBtn.disabled = false;
+                    }, 2000);
+                }
+            });
+        }
+    </script>
+    
+    <style>
+        .admin-esya-card {
+            background: linear-gradient(135deg, #253a61 80%, #162a46 100%);
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px rgba(31,63,140,0.16);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 320px;
+            position: relative;
+            padding: 2.2rem 1.6rem 1.4rem 1.6rem;
+            border: 1.5px solid #233563;
+        }
+        .admin-esya-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.48rem;
+            color: #f7f8fa;
+            min-height: 2.2em;
+        }
+        .admin-esya-status strong {
+            font-weight: 700;
+            margin-right: 4px;
+            font-size: 1rem;
+        }
+        .admin-esya-status .badge {
+            font-size: 0.99rem;
+            padding: 0.59em 1.18em;
+            border-radius: 1.3rem;
+            font-weight: 600;
+            background: #e13a3a;
+            display: inline-block;
+        }
+        .admin-esya-status .bg-success { background: #37b84a !important; }
+        .admin-esya-status .bg-secondary { background: #949ca7 !important; }
+        .list-group-item { border-radius: 1.2rem !important; margin-bottom: 0.3rem; }
+        .text-secondary { color: #b8cbfa !important; }
+        /* Modal arka planını transparan yap */
+        .modal-backdrop.show { background: rgba(0,0,0,0.0) !important; }
+        .modal-content { background: transparent !important; box-shadow: none !important; border: none !important; }
+        
+        /* Rol dropdown stilleri */
+        .form-select {
+            background-color: rgba(255,255,255,0.1) !important;
+            border: 1px solid #b8cbfa !important;
+            color: #fff !important;
+        }
+        .form-select:focus {
+            background-color: rgba(255,255,255,0.15) !important;
+            border-color: #37b84a !important;
+            box-shadow: 0 0 0 0.2rem rgba(55, 184, 74, 0.25) !important;
+        }
+        .form-select option {
+            background-color: #253a61;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #2ea83a !important;
+        }
+    </style>
+} 

@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using KayipEsyaPlatformu.Models
+@inject SignInManager<Kullanici> SignInManager
+@inject UserManager<Kullanici> UserManager
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var panelController = "KullaniciPaneli";
+    if (currentUser != null && await UserManager.IsInRoleAsync(currentUser, "Admin"))
+    {
+        panelController = "AdminPaneli";
+    }
+}
+<ul class="navbar-nav flex-row gap-2">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link" style="color: #326fa6; font-weight: 600;" asp-action="Panel" asp-controller="@panelController">
+                Merhaba, @(currentUser != null ? $"{currentUser.Ad} {currentUser.Soyad}" : User.Identity?.Name)
+            </a>
+        </li>        
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm" style="color: #326fa6; border-color: #326fa6; font-weight: 600;" asp-area="Identity" asp-page="/Account/Login">Giriş Yap</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm" style="color: #326fa6; border-color: #326fa6; font-weight: 600;" asp-area="Identity" asp-page="/Account/Register">Kayıt Ol</a>
+        </li>
+    }
+</ul>

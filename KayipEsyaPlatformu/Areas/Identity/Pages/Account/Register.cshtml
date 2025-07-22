@@ -1,0 +1,76 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+<style>
+    body, html {
+        background: #232526 !important; /* Sade düz arka plan */
+    }
+
+    .register-form-bg {
+        background: #18191a;
+        border-radius: 24px;
+        box-shadow: 0 2px 16px 0 #0006;
+        padding: 56px 32px 36px 32px;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem #3f68f9;
+        border-color: #3f68f9;
+    }
+</style>
+<section class="vh-100 gradient-custom">
+        
+        <div class="row g-0 align-items-center justify-content-center">
+            <!-- SOL: KAYIT FORMU -->
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="card bg-dark text-white shadow-5 rounded-4 p-4" style="background-color:transparent">
+                    <div class="card-body text-center p-5">
+                        <h2 class="fw-bold mb-4">Kayıt Ol</h2>
+                        <form method="post">                        
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input asp-for="Input.Ad" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Ad" />
+                                    <span asp-validation-for="Input.Ad" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input asp-for="Input.Soyad" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Soyad" />
+                                    <span asp-validation-for="Input.Soyad" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="Input.Email" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Email adresi" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="Input.PhoneNumber" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Telefon" />
+                                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="mb-4">
+                                <input asp-for="Input.Password" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Şifre" />
+                                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                            </div>
+                            <div class="mb-4">
+                                <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Şifreyi Onayla" />
+                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100">Kayıt Ol</button>
+                            <div class="mt-4">
+                                <p>Zaten hesabınız var mı? <a asp-page="./Login" class="text-info">Giriş Yap</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>           
+            
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="~/uploads/register.png" class="w-100 rounded-4 shadow-4" alt="Kayıt Ol Görseli" />
+            </div>
+        </div>
+    
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,31 @@
+﻿@page
+@model DeletePersonalDataModel
+@{
+    ViewData["Title"] = "Hesabı Sil";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;   
+
+}
+
+<h3 class="text-white mb-3">Hesabı Sil</h3>
+
+<div class="alert alert-danger text-white">
+    <strong>Dikkat!</strong> Bu işlem geri alınamaz. Hesabınızı kalıcı olarak sileceksiniz.
+</div>
+
+<form method="post">
+    @if (Model.RequirePassword)
+    {
+        <div class="mb-3">
+            <label asp-for="Input.Password" class="form-label text-white"></label>
+            <input asp-for="Input.Password" class="form-control" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-danger">Hesabımı Kalıcı Olarak Sil</button>
+    <a asp-page="./PersonalData" class="btn btn-outline-secondary ms-2">İptal</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

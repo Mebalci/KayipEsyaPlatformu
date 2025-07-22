@@ -1,0 +1,159 @@
+@model IEnumerable<KayipEsyaPlatformu.Models.IletisimMesaj>
+    <style>
+    .table thead th,
+    .table thead td {
+        color: #fff !important;
+        background: #253a61 !important;
+        border-bottom: 2px solid #3f68f9;
+        font-weight: 600;
+    }
+    .table tbody tr {
+        background: #122849 !important;
+        color: #e5eaf6 !important;
+        transition: background 0.2s;
+    }
+    .table tbody tr:hover {
+        background: #223354 !important;
+    }
+    .table a, .table button {
+        color: #69a6f9 !important;
+        font-weight: 500;
+    }
+    .badge.bg-success, .badge.bg-danger {
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+    }
+    .btn-link.text-danger {
+        color: #ff6767 !important;
+    }
+    .btn-link.text-danger:hover {
+        color: #fa2b2b !important;
+        background: transparent;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Mail</th>
+                    <th>Mesaj</th>
+                    <th>Tarih</th>
+                    <th>Durum</th>
+                    <th>Sil</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var mesaj in Model)
+                    {
+                        <tr id="mesajRow_@mesaj.Id">
+                            <td>@mesaj.AdSoyad</td>
+                            <td>
+                                <a href="mailto:@mesaj.Email" class="text-decoration-none">@mesaj.Email</a>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm mesaj-oku-btn" 
+                                        data-id="@mesaj.Id">
+                                    Mesajı Oku
+                                </button>
+                            </td>
+                            <td>@mesaj.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-2 fs-6 @(mesaj.OkunduMu ? "bg-success" : "bg-danger") okundu-badge" 
+                                      style="cursor:pointer"
+                                      data-id="@mesaj.Id"
+                                      data-okundu="@mesaj.OkunduMu.ToString().ToLower()">
+                                    @(mesaj.OkunduMu ? "Okundu" : "Okunmadı")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-link text-danger p-0 sil-btn" data-id="@mesaj.Id" title="Sil">
+                                    <i class="bi bi-trash fs-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">Henüz mesaj yok.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="mesajModal" tabindex="-1" aria-labelledby="mesajModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: #122849; color: #e5eaf6; border-radius: 1.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+      <div class="modal-header bg-primary text-white" style="border-top-left-radius: 1.2rem; border-top-right-radius: 1.2rem;">
+        <h5 class="modal-title" id="mesajModalLabel">Mesaj Detayı</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="mesajModalBody" style="background: #223354; color: #e5eaf6; padding: 1.2rem; border-bottom-left-radius: 1.2rem; border-bottom-right-radius: 1.2rem; word-break: break-word; white-space: pre-wrap; max-width: 100%; overflow-x: auto; font-size: 1.08rem;">
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).on('click', '.mesaj-oku-btn', function () {
+            var mesajId = $(this).data('id');
+            $.get('/AdminPaneli/MesajDetay', { id: mesajId }, function(data) {
+                $('#mesajModalBody').text(data.mesaj);
+                $('#mesajModal').modal('show');
+                var badge = $('#mesajRow_' + mesajId + ' .okundu-badge');
+                badge.removeClass('bg-danger').addClass('bg-success').text('Okundu');
+            });
+            $.post('/AdminPaneli/MesajOkunduYap', { id: mesajId });
+        });
+        $(document).on('click', '.okundu-badge', function () {
+            var badge = $(this);
+            var mesajId = badge.data('id');
+            var okunduMu = badge.data('okundu') === true || badge.data('okundu') === "true";
+            $.ajax({
+                url: '/AdminPaneli/MesajDurumToggle',
+                type: 'POST',
+                data: { id: mesajId, okunduMu: okunduMu },
+                success: function (result) {
+                    var yeniDurum = result.yeniDurum;
+                    badge
+                        .toggleClass('bg-success', yeniDurum)
+                        .toggleClass('bg-danger', !yeniDurum)
+                        .text(yeniDurum ? 'Okundu' : 'Okunmadı')
+                        .data('okundu', yeniDurum);
+                },
+                error: function () {
+                    alert('Bir hata oluştu.');
+                }
+            });
+        });
+        $(document).on('click', '.sil-btn', function () {
+            if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
+            var btn = $(this);
+            var mesajId = btn.data('id');
+            $.ajax({
+                url: '/AdminPaneli/MesajSil',
+                type: 'POST',
+                data: { id: mesajId },
+                success: function (result) {
+                    if (result.success) {
+                        $('#mesajRow_' + mesajId).fadeOut(300, function () { $(this).remove(); });
+                    } else {
+                        alert('Silinemedi!');
+                    }
+                },
+                error: function () {
+                    alert('Bir hata oluştu.');
+                }
+            });
+        });
+    </script>
+} 

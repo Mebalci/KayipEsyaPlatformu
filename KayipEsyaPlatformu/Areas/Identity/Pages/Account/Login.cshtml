@@ -1,0 +1,65 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+<style>
+    body, html {
+        background: #232526 !important;
+    }
+
+    .login-form-bg {
+        background: #18191a;
+        border-radius: 24px;
+        box-shadow: 0 2px 16px 0 #0006;
+        padding: 56px 32px 36px 32px;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem #3f68f9;
+        border-color: #3f68f9;
+    }
+</style>
+<section class="vh-100">
+    <div class="row g-0 align-items-center justify-content-center">
+        
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <div class="card bg-dark text-white shadow-5 rounded-4 p-4" style="background-color:transparent">
+                <div class="card-body text-center p-5">
+                    <h2 class="fw-bold mb-4">Giriş Yap</h2>
+                    <form id="account" method="post">                        
+                        <div class="mb-3">
+                            <input asp-for="Input.Email" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Email adresi" autocomplete="username" aria-required="true" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <input asp-for="Input.Password" class="form-control form-control-lg bg-dark text-white border-secondary" placeholder="Şifre" autocomplete="current-password" aria-required="true" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-4 text-start">
+                            <input class="form-check-input" asp-for="Input.RememberMe" id="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">
+                                Beni hatırla
+                            </label>
+                        </div>
+                        <button id="login-submit" type="submit" class="btn btn-primary btn-lg w-100">Giriş Yap</button>
+                        <div class="mt-4">
+                            <p><a asp-page="./ForgotPassword" class="text-info">Şifremi Unuttum</a></p>
+                            <p>Hesabınız yok mu? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-info">Kayıt Ol</a></p>
+                            <p><a asp-page="./ResendEmailConfirmation" class="text-info">Doğrulama Mailini Tekrar Gönder</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="col-lg-6 d-none d-lg-block">
+            <img src="~/uploads/register.png" class="w-100 rounded-4 shadow-4" alt="Giriş Görseli" />
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

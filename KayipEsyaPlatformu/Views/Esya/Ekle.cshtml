@@ -1,0 +1,252 @@
+﻿@model KayipEsyaPlatformu.Models.Esya
+
+@{
+    ViewData["Title"] = "Yeni Eşya Kaydı";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            background-color: #0c2440;
+            color: white;
+        }
+
+        .custom-input {
+            background-color: #0c2440;
+            color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 1rem;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+            .custom-input::placeholder {
+                color: #ffff;
+            }
+
+            .custom-input:focus {
+                outline: none;
+                border-color: #66bfff;
+                box-shadow: 0 0 5px rgba(102, 191, 255, 0.5);
+            }
+
+        .custom-btn {
+            background-color: #3f68f9;
+            color: white;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+            .custom-btn:hover {
+                background-color: #355be0;
+            }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+}
+
+<h2 class="mb-4 fw-bold">Yeni Kayıp/Buluntu Eşya Kaydı</h2>
+
+<form id="esyaForm" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <input name="Baslik" class="custom-input" placeholder="Başlık" required />
+            <textarea name="Aciklama" class="custom-input" placeholder="Açıklama" rows="3" required></textarea>
+
+            <select name="KategoriId" class="custom-input" asp-items="@(new SelectList(ViewBag.Kategoriler, "Id", "Ad"))" required></select>
+            <select name="DurumId" class="custom-input" asp-items="@(new SelectList(ViewBag.Durumlar, "Id", "Ad"))" required></select>
+
+            <input name="Marka" class="custom-input" placeholder="Marka" required />
+            <input name="Model" class="custom-input" placeholder="Model" required />
+
+            <select name="RenkId" class="custom-input" asp-items="@(new SelectList(ViewBag.Renkler, "Id", "Ad"))" required></select>
+        </div>
+
+        <div class="col-md-6">
+            <select id="SehirId" name="SehirId" class="custom-input" required>
+                <option value="">Şehir Seçin</option>
+                @foreach (var sehir in ViewBag.Sehirler)
+                {
+                    <option value="@sehir.Id">@sehir.Ad</option>
+                }
+            </select>
+
+            <select id="IlceId" name="IlceId" class="custom-input" required>
+                <option value="">İlçe Seçin</option>
+            </select>
+
+            <select id="MahalleId" name="MahalleId" class="custom-input" required>
+                <option value="">Mahalle Seçin</option>
+            </select>
+
+            <input id="Konum" name="Konum" class="custom-input" placeholder="Adres (Otomatik)" readonly required />
+
+            <div id="map" class="mb-3"></div>
+
+            <input type="hidden" id="Enlem" name="Enlem" />
+            <input type="hidden" id="Boylam" name="Boylam" />
+
+            <input type="file" name="resim" class="custom-input" required />
+        </div>
+    </div>
+
+    <button type="submit" class="custom-btn mt-3">Kaydı Oluştur</button>
+</form>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, marker;
+
+        function initMap() {
+            map = L.map('map').setView([39.9208, 32.8541], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            map.on('click', function (e) {
+                updateLocation(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        async function updateLocation(lat, lng) {
+            $("#Enlem").val(lat);
+            $("#Boylam").val(lng);
+
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+            marker.on('dragend', function (e) {
+                const pos = e.target.getLatLng();
+                $("#Enlem").val(pos.lat);
+                $("#Boylam").val(pos.lng);
+            });
+
+            const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=tr`);
+            const data = await resp.json();
+            if (data.address) {
+                const { suburb = "", town = "", state = "" } = data.address;
+                $("#Konum").val(`${suburb}, ${town}, ${state}`);
+            }
+        }
+
+        function centerMapToAddress(address) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=tr&limit=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        map.setView([lat, lon], 15);
+                        updateLocation(lat, lon);
+                    }
+                });
+        }
+
+        function bindDropdownEvents() {
+            $('#SehirId').change(function () {
+                const sehirId = $(this).val();
+                const sehirAd = $(this).find('option:selected').text();
+
+                $('#IlceId').empty().append('<option value="">İlçe Seçin</option>');
+                $('#MahalleId').empty().append('<option value="">Mahalle Seçin</option>');
+
+                if (sehirId) {
+                    centerMapToAddress(sehirAd);
+                    $.getJSON('/Adres/Ilceler/' + sehirId, data => {
+                        $.each(data, (i, item) => $('#IlceId').append(`<option value="${item.id}">${item.ad}</option>`));
+                    });
+                }
+            });
+
+            $('#IlceId').change(function () {
+                const ilceId = $(this).val();
+                $('#MahalleId').empty().append('<option value="">Mahalle Seçin</option>');
+                if (ilceId) {
+                    $.getJSON('/Adres/Mahalleler/' + ilceId, data => {
+                        $.each(data, (i, item) => $('#MahalleId').append(`<option value="${item.id}">${item.ad}</option>`));
+                    });
+                }
+            });
+
+            $('#MahalleId').change(function () {
+            const sehir = $('#SehirId option:selected').text();
+            const ilce = $('#IlceId option:selected').text();
+            const mahalle = $('#MahalleId option:selected').text();
+
+                if (sehir && ilce && mahalle) {
+                    const addressharita = `${mahalle}allesi, ${ilce}, ${sehir}, Türkiye`;
+
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressharita)}&countrycodes=tr&limit=1`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lon = parseFloat(data[0].lon);
+                                map.setView([lat, lon], 20);
+                                updateLocation(lat, lon);
+
+                                $('#Konum').val(`${mahalle}, ${ilce}, ${sehir}`);
+                            } else {
+                                alert("📍 Konum bulunamadı. Lütfen harita üzerinden manuel seçim yapın.");
+                            }
+                        });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            initMap();
+            bindDropdownEvents();
+
+            $('#esyaForm').submit(function (e) {
+                e.preventDefault();
+
+                const requiredFields = ['Baslik', 'Aciklama', 'KategoriId', 'DurumId', 'Marka', 'Model', 'RenkId', 'SehirId', 'IlceId', 'MahalleId', 'Enlem', 'Boylam', 'resim'];
+                for (let field of requiredFields) {
+                    const val = $(`[name="${field}"]`).val();
+                    if (!val || val.trim() === "") {
+                        alert("❌ Lütfen tüm alanları doldurun.");
+                        return;
+                    }
+                }
+                const $btn = $('button[type="submit"]');
+                $btn.prop('disabled', true).text('Kaydediliyor...');
+
+                const formData = new FormData(this);
+                $.ajax({
+                    url: '/Esya/Ekle',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: res => {
+                        alert("✅ " + res.message);
+                        this.reset();
+                        if (marker) map.removeLayer(marker);
+                        map.setView([39.9208, 32.8541], 6);
+
+                        const $btn = $('button[type="submit"]');
+                        $btn.prop('disabled', false).text('Kaydı Oluştur');
+                                            
+                        window.location.href = "/";
+                    },
+                    error: xhr => {
+                        alert("❌ " + (xhr.responseJSON?.message || "Hata oluştu."));
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,96 @@
+﻿@page
+@model KayipEsyaPlatformu.Areas.Identity.Pages.Account.Manage.MyItemsModel
+
+@{
+    ViewData["Title"] = "Eşyalarım";
+    ViewData["ActivePage"] = ManageNavPages.MyItems;
+    
+}
+
+
+
+    <style>
+        .item-card {
+            background-color: #1e3a5c;
+            color: white;
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+            .item-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            }
+
+        .item-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .item-date {
+            font-size: 0.9rem;
+            color: #c0c0c0;
+        }
+
+        .item-status {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .item-actions a {
+            margin-right: 10px;
+        }
+
+        .btn-outline-light:hover {
+            background-color: white;
+            color: black;
+        }
+    </style>
+
+
+<div class="container py-4">
+    <h2 class="mb-4"><i class="bi bi-box-seam me-2"></i> Eşyalarım</h2>
+
+    @if (Model.Esyalar == null || !Model.Esyalar.Any())
+    {
+        <div class="alert alert-warning">Henüz hiç eşya ilanınız bulunmamaktadır.</div>
+        <a href="/Esya/Ekle" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Yeni İlan Ekle
+        </a>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var esya in Model.Esyalar)
+            {
+                <div class="col-md-4">
+                    <div class="item-card">
+                        <div class="item-title">@esya.Baslik</div>
+                        <div class="item-date">@esya.Tarih.ToString("dd.MM.yyyy")</div>
+                        <div class="item-status mt-2">
+                            Durum:
+                            <span class="badge bg-@(esya.Durum?.Ad?.ToLower() == "bulundu" ? "success" : "secondary")">
+                                @esya.Durum?.Ad ?? "Bilinmiyor"
+                            </span>
+                        </div>
+                        <div class="item-actions mt-3">
+                            <a class="btn btn-sm btn-outline-light" href="/Esya/Detay/@esya.Id">
+                                <i class="bi bi-eye"></i> Detay
+                            </a>
+                            <a class="btn btn-sm btn-warning" href="/Esya/Duzenle/@esya.Id">
+                                <i class="bi bi-pencil"></i> Düzenle
+                            </a>
+                            <a class="btn btn-sm btn-danger" href="/Esya/Sil/@esya.Id"
+                               onclick="return confirm('Bu ilanı silmek istediğinize emin misiniz?')">
+                                <i class="bi bi-trash"></i> Sil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

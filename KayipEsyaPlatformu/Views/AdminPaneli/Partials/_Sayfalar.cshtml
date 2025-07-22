@@ -1,0 +1,312 @@
+<style>
+    .admin-page-card {
+        background: linear-gradient(135deg, #253a61 80%, #162a46 100%);
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 30px rgba(31,63,140,0.16);
+        color: #fff;
+        border: 1.5px solid #233563;
+        margin-bottom: 2rem;
+    }
+
+    .admin-page-header {
+        background: rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 1.5rem;
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+
+    .admin-page-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+        color: #f7f8fa;
+    }
+
+    .admin-page-body {
+        padding: 1.5rem;
+    }
+
+    .form-control-admin {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #fff !important;
+        border-radius: 0.75rem;
+    }
+
+    .form-control-admin:focus {
+        background: rgba(255,255,255,0.15) !important;
+        border-color: #37b84a !important;
+        box-shadow: 0 0 0 0.2rem rgba(55, 184, 74, 0.25) !important;
+        color: #fff !important;
+    }
+
+    .form-control-admin::placeholder {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    .btn-admin-save {
+        background: linear-gradient(135deg, #37b84a, #2ea83a);
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-admin-save:hover {
+        background: linear-gradient(135deg, #2ea83a, #1f8f2e);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(55, 184, 74, 0.3);
+    }
+
+    .nav-tabs-admin {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .nav-tabs-admin .nav-link {
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.7);
+        border-radius: 0.5rem 0.5rem 0 0;
+        padding: 0.75rem 1.5rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs-admin .nav-link.active {
+        background: rgba(55, 184, 74, 0.2);
+        color: #fff;
+        border-bottom: 2px solid #37b84a;
+    }
+
+    .nav-tabs-admin .nav-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+
+    .form-label-admin {
+        color: #f7f8fa;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .textarea-admin {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="admin-page-card">
+                <div class="admin-page-header">
+                    <h4 class="admin-page-title">
+                        <i class="fas fa-file-alt me-2"></i>Sayfa Yönetimi
+                    </h4>
+                </div>
+                <div class="admin-page-body">
+                    <ul class="nav nav-tabs nav-tabs-admin" id="sayfaTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="hakkimizda-tab" data-bs-toggle="tab" data-bs-target="#hakkimizda" type="button" role="tab">
+                                <i class="fas fa-info-circle me-2"></i>Hakkımızda
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="iletisim-tab" data-bs-toggle="tab" data-bs-target="#iletisim" type="button" role="tab">
+                                <i class="fas fa-phone me-2"></i>İletişim
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="sayfaTabsContent">
+                        <!-- Hakkımızda Tab -->
+                        <div class="tab-pane fade show active" id="hakkimizda" role="tabpanel">
+                            <form id="hakkimizdaForm">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">Başlık</label>
+                                        <input type="text" class="form-control form-control-admin" id="hakkimizdaBaslik" placeholder="Hakkımızda sayfası başlığı">
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">Ana İçerik</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaIcerik" placeholder="Hakkımızda sayfası ana içeriği"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Misyon</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaMisyon" placeholder="Şirket misyonu"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Vizyon</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaVizyon" placeholder="Şirket vizyonu"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Değerlerimiz</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaDegerlerimiz" placeholder="Şirket değerleri"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Ekibimiz</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaEkibimiz" placeholder="Ekip bilgileri"></textarea>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">Tarihçe</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="hakkimizdaTarihce" placeholder="Şirket tarihçesi"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-admin-save">
+                                            <i class="fas fa-save me-2"></i>Hakkımızda Sayfasını Kaydet
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- İletişim Tab -->
+                        <div class="tab-pane fade" id="iletisim" role="tabpanel">
+                            <form id="iletisimForm">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">Başlık</label>
+                                        <input type="text" class="form-control form-control-admin" id="iletisimBaslik" placeholder="İletişim sayfası başlığı">
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">İçerik</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="iletisimIcerik" placeholder="İletişim sayfası içeriği"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Adres</label>
+                                        <textarea class="form-control form-control-admin" id="iletisimAdres" placeholder="Şirket adresi"></textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Telefon</label>
+                                        <input type="tel" class="form-control form-control-admin" id="iletisimTelefon" placeholder="Telefon numarası">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">E-posta</label>
+                                        <input type="email" class="form-control form-control-admin" id="iletisimEmail" placeholder="E-posta adresi">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Çalışma Saatleri</label>
+                                        <input type="text" class="form-control form-control-admin" id="iletisimCalismaSaatleri" placeholder="Örn: Pazartesi-Cuma 09:00-18:00">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Harita Koordinatları</label>
+                                        <input type="text" class="form-control form-control-admin" id="iletisimHaritaKoordinatlari" placeholder="Örn: 41.0082,28.9784">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label-admin">Sosyal Medya Linkleri (JSON)</label>
+                                        <textarea class="form-control form-control-admin" id="iletisimSosyalMedya" placeholder='{"facebook":"...","twitter":"...","instagram":"..."}'></textarea>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label-admin">İletişim Formu Metni</label>
+                                        <textarea class="form-control form-control-admin textarea-admin" id="iletisimFormMetni" placeholder="İletişim formu üstündeki açıklama metni"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-admin-save">
+                                            <i class="fas fa-save me-2"></i>İletişim Sayfasını Kaydet
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Hakkımızda verilerini yükle
+    loadHakkimizda();
+    
+    // İletişim verilerini yükle
+    loadIletisim();
+    
+    // Hakkımızda form submit
+    $('#hakkimizdaForm').on('submit', function(e) {
+        e.preventDefault();
+        saveHakkimizda();
+    });
+    
+    // İletişim form submit
+    $('#iletisimForm').on('submit', function(e) {
+        e.preventDefault();
+        saveIletisim();
+    });
+});
+
+function loadHakkimizda() {
+    $.get('/AdminPaneli/HakkimizdaGetir', function(data) {
+        $('#hakkimizdaBaslik').val(data.baslik || '');
+        $('#hakkimizdaIcerik').val(data.icerik || '');
+        $('#hakkimizdaMisyon').val(data.misyon || '');
+        $('#hakkimizdaVizyon').val(data.vizyon || '');
+        $('#hakkimizdaDegerlerimiz').val(data.degerlerimiz || '');
+        $('#hakkimizdaEkibimiz').val(data.ekibimiz || '');
+        $('#hakkimizdaTarihce').val(data.tarihce || '');
+    });
+}
+
+function saveHakkimizda() {
+    const data = {
+        baslik: $('#hakkimizdaBaslik').val(),
+        icerik: $('#hakkimizdaIcerik').val(),
+        misyon: $('#hakkimizdaMisyon').val(),
+        vizyon: $('#hakkimizdaVizyon').val(),
+        degerlerimiz: $('#hakkimizdaDegerlerimiz').val(),
+        ekibimiz: $('#hakkimizdaEkibimiz').val(),
+        tarihce: $('#hakkimizdaTarihce').val()
+    };
+    
+    $.post('/AdminPaneli/HakkimizdaKaydet', data, function(response) {
+        if (response.success) {
+            toastr.success('Hakkımızda sayfası başarıyla kaydedildi!');
+        } else {
+            toastr.error('Hata: ' + response.message);
+        }
+    }).fail(function() {
+        toastr.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+    });
+}
+
+function loadIletisim() {
+    $.get('/AdminPaneli/IletisimGetir', function(data) {
+        $('#iletisimBaslik').val(data.baslik || '');
+        $('#iletisimIcerik').val(data.icerik || '');
+        $('#iletisimAdres').val(data.adres || '');
+        $('#iletisimTelefon').val(data.telefon || '');
+        $('#iletisimEmail').val(data.email || '');
+        $('#iletisimCalismaSaatleri').val(data.calismaSaatleri || '');
+        $('#iletisimHaritaKoordinatlari').val(data.haritaKoordinatlari || '');
+        $('#iletisimSosyalMedya').val(data.sosyalMedyaLinkleri || '');
+        $('#iletisimFormMetni').val(data.iletisimFormuMetni || '');
+    });
+}
+
+function saveIletisim() {
+    const data = {
+        baslik: $('#iletisimBaslik').val(),
+        icerik: $('#iletisimIcerik').val(),
+        adres: $('#iletisimAdres').val(),
+        telefon: $('#iletisimTelefon').val(),
+        email: $('#iletisimEmail').val(),
+        calismaSaatleri: $('#iletisimCalismaSaatleri').val(),
+        haritaKoordinatlari: $('#iletisimHaritaKoordinatlari').val(),
+        sosyalMedyaLinkleri: $('#iletisimSosyalMedya').val(),
+        iletisimFormuMetni: $('#iletisimFormMetni').val()
+    };
+    
+    $.post('/AdminPaneli/IletisimKaydet', data, function(response) {
+        if (response.success) {
+            toastr.success('İletişim sayfası başarıyla kaydedildi!');
+        } else {
+            toastr.error('Hata: ' + response.message);
+        }
+    }).fail(function() {
+        toastr.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+    });
+}
+</script> 

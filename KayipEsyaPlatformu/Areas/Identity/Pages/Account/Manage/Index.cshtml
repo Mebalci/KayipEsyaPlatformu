@@ -1,0 +1,52 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profil Bilgileri";
+    ViewData["ActivePage"] = ManageNavPages.Index;     
+
+}
+
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark text-white shadow-lg rounded">
+                <div class="card-header border-bottom border-secondary">
+                    <h4><i class="bi bi-person-badge me-2"></i> Profil Bilgileri</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label asp-for="Input.Ad" class="form-label"></label>
+                            <input asp-for="Input.Ad" class="form-control" />
+                            <span asp-validation-for="Input.Ad" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Input.Soyad" class="form-label"></label>
+                            <input asp-for="Input.Soyad" class="form-control" />
+                            <span asp-validation-for="Input.Soyad" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                            <input asp-for="Input.PhoneNumber" class="form-control" />
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-outline-light">
+                                <i class="bi bi-save me-1"></i> Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

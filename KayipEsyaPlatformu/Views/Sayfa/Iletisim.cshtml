@@ -1,0 +1,289 @@
+@model KayipEsyaPlatformu.Models.Iletisim
+@{
+    ViewData["Title"] = Model.Baslik;
+}
+
+<style>
+    .iletisim-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        color: #326fa6;
+        letter-spacing: 1px;
+        margin-bottom: 1.2rem;
+        text-shadow: 0 2px 8px rgba(50,111,166,0.08);
+    }
+    .iletisim-desc {
+        font-size: 1.18rem;
+        color: #e5eaf6;
+        margin-bottom: 2.5rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+    .iletisim-cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .iletisim-card, .iletisim-form-card {
+        background: #0d1c33;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px rgba(50,111,166,0.10);
+        border: 1.5px solid #253a61;
+        color: #e5eaf6;
+        padding: 2rem 1.5rem;
+        flex: 1 1 350px;
+        transition: box-shadow 0.18s, transform 0.14s, border-color 0.18s;
+    }
+    .iletisim-card:hover, .iletisim-form-card:hover {
+        box-shadow: 0 8px 32px rgba(50,111,166,0.18);
+        transform: translateY(-4px) scale(1.01);
+        border-color: #326fa6;
+    }
+    .iletisim-card .card-title, .iletisim-form-card .card-title {
+        color: #326fa6;
+        font-weight: 700;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .form-label, .form-control, textarea, input {
+        color: #c7d3e6 !important;
+        background-color: #112344 !important;
+        border: 1px solid #304f78;
+    }
+    .form-floating > label {
+        color: #aaa !important;
+    }
+    .form-control:focus {
+        border-color: #326fa6;
+        box-shadow: 0 0 0 0.2rem rgba(50,111,166,0.25);
+    }
+    .iletisim-social .btn {
+        border: none;
+        background: #223354;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+    .iletisim-social .btn:hover {
+        background: #326fa6;
+    }
+    .iletisim-map-card {
+        background: #15305a;
+        border-radius: 1.2rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: center;
+    }
+    .iletisim-map-card iframe {
+        border-radius: 1rem;
+        width: 100%;
+        height: 250px;
+        border: none;
+    }
+    .iletisim-form-card .form-label,
+    .iletisim-form-card .form-control,
+    .iletisim-form-card textarea,
+    .iletisim-form-card input,
+    .iletisim-form-card .form-floating > label {
+        color: #fff !important;
+    }
+    .iletisim-form-card .form-control,
+    .iletisim-form-card textarea,
+    .iletisim-form-card input {
+        color: #fff !important;
+        background-color: #112344 !important;
+        border: 1px solid #304f78;
+        padding-left: 1.1rem;
+    }
+    .iletisim-form-card .form-floating > label {
+        color: #fff !important;        
+    }
+    .iletisim-form-card .form-control::placeholder {
+        color: #aaa !important;
+        opacity: 1;
+    }
+    .iletisim-form-card button[type="submit"] {
+        background: #326fa6;
+        border-color: #326fa6;
+        color: #fff;
+        font-weight: 600;
+        transition: background 0.2s, color 0.2s;
+    }
+    .iletisim-form-card button[type="submit"]:hover {
+        background: #204a7a;
+        color: #fff;
+        border-color: #204a7a;
+    }
+    .iletisim-social .btn {
+        border: none;
+        background: #223354;
+        color: #fff;
+        font-size: 1.3rem;
+        margin-right: 0.5rem;
+        width: 2.4rem;
+        height: 2.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s, color 0.2s;
+        box-shadow: 0 2px 8px rgba(50,111,166,0.10);
+    }
+    .iletisim-social .btn:hover {
+        background: #326fa6;
+        color: #fff;
+    }
+    .iletisim-social .btn i {
+        color: #fff !important;
+        font-size: 1.2rem;
+    }
+    @@media (max-width: 900px) {
+        .iletisim-cards-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center">
+        <div class="iletisim-title">
+            <i class="fas fa-paper-plane me-2"></i>@Model.Baslik
+        </div>
+        <div class="iletisim-desc">@Model.Icerik</div>
+    </div>
+
+    <div class="iletisim-cards-row">
+        <!-- İletişim Bilgileri -->
+        <div class="iletisim-card">
+            <div class="card-title"><i class="fas fa-info-circle me-2"></i>İletişim Bilgileri</div>
+            <p><i class="fas fa-map-marker-alt me-2"></i><strong>Adres:</strong> @Model.Adres</p>
+            <p><i class="fas fa-phone me-2"></i><strong>Telefon:</strong> <a href="tel:@Model.Telefon">@Model.Telefon</a></p>
+            <p><i class="fas fa-envelope me-2"></i><strong>E-posta:</strong> <a href="mailto:@Model.Email">@Model.Email</a></p>
+            @if (!string.IsNullOrEmpty(Model.CalismaSaatleri))
+            {
+                <p><i class="fas fa-clock me-2"></i><strong>Çalışma Saatleri:</strong> @Model.CalismaSaatleri</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.SosyalMedyaLinkleri))
+            {
+                <div class="mt-3 iletisim-social">
+                    <h6 style="color: #326fa6;">Sosyal Medya</h6>
+                    <div class="d-flex gap-2">
+                        @try {
+                            var sosyalMedya = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.SosyalMedyaLinkleri);
+                            if (sosyalMedya != null)
+                            {
+                                foreach (var item in sosyalMedya)
+                                {
+                                    var icon = "";
+                                    switch (item.Key.ToLower())
+                                    {
+                                        case "facebook": icon = "fab fa-facebook-f"; break;
+                                        case "twitter": icon = "fab fa-twitter"; break;
+                                        case "instagram": icon = "fab fa-instagram"; break;
+                                        case "linkedin": icon = "fab fa-linkedin-in"; break;
+                                        case "youtube": icon = "fab fa-youtube"; break;
+                                        case "tiktok": icon = "fab fa-tiktok"; break;
+                                        default: icon = "fas fa-globe"; break;
+                                    }
+                                    <a href="@item.Value" class="btn rounded-circle" target="_blank">
+                                        <i class="@icon"></i>
+                                    </a>
+                                }
+                            }
+                        } catch {
+                            <span class="text-muted">Sosyal medya linkleri yüklenemedi.</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- İletişim Formu -->
+        <div class="iletisim-form-card">
+            <div class="card-title"><i class="fas fa-paper-plane me-2"></i>İletişim Formu</div>
+            @if (!string.IsNullOrEmpty(Model.IletisimFormuMetni))
+            {
+                <p class="mb-4">@Model.IletisimFormuMetni</p>
+            }
+            <form id="contactForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3 form-floating">
+                        <input type="text" class="form-control" id="adSoyad" name="adSoyad" required>
+                        <label style="padding-left: 1.5rem;" for="adSoyad">Ad Soyad</label>
+                    </div>
+                    <div class="col-md-6 mb-3 form-floating">
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label style="padding-left: 1.5rem;" for="email">E-posta</label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3 form-floating">
+                    <input type="text" class="form-control" id="konu" name="konu" required>
+                    <label for="konu">Konu</label>
+                </div>
+                <div class="mb-3 form-floating">
+                    <textarea class="form-control" name="mesaj" id="mesaj" style="height: 150px;" required></textarea>
+                    <label for="mesaj">Mesaj</label>
+                </div>
+                <div id="formMessage" class="mb-3"></div>
+                <button type="submit" class="btn btn-outline-light">
+                    <i class="fas fa-paper-plane me-2"></i>Mesaj Gönder
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Harita -->
+    @if (!string.IsNullOrEmpty(Model.HaritaKoordinatlari))
+    {
+        <div class="iletisim-map-card mt-4">
+            <div class="card-title"><i class="fas fa-map me-2"></i>Konum</div>
+            <div class="mb-2"><strong>Adres:</strong> @Model.Adres</div>
+            <iframe src="https://maps.google.com/maps?q=@Model.HaritaKoordinatlari&output=embed" loading="lazy"></iframe>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        $('#contactForm').on('submit', function (e) {
+            e.preventDefault();
+            const btn = $(this).find('button[type="submit"]');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Gönderiliyor...').prop('disabled', true);
+
+            $.ajax({
+                url: '/AdminPaneli/IletisimMesajGonder',
+                type: 'POST',
+                data: {
+                    adSoyad: $('#adSoyad').val(),
+                    email: $('#email').val(),
+                    konu: $('#konu').val(),
+                    mesaj: $('#mesaj').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#formMessage').html('<div class="alert alert-success">Mesajınız başarıyla gönderildi.</div>');
+                        $('#contactForm')[0].reset();
+                    } else {
+                        $('#formMessage').html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#formMessage').html('<div class="alert alert-danger">Bir hata oluştu. Lütfen tekrar deneyin.</div>');
+                },
+                complete: function () {
+                    btn.html(originalText).prop('disabled', false);
+                    document.getElementById("contactForm").scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+}

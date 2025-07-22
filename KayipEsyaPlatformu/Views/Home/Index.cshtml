@@ -1,0 +1,130 @@
+﻿<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+
+<section class="text-center my-5">
+    <h1 class="display-4 fw-bold text-white">Kayıp Eşya</h1>
+    <p class="lead text-secondary">Kayıp eşyalarınızı kolayca bulun ve bildirin</p>
+</section>
+
+<section class="mb-5">
+    <div class="d-flex flex-column align-items-center">
+        <input type="text" id="arama" class="custom-search-input" placeholder="Eşyaları Arayın..." />
+        <button id="araBtn" class="custom-search-button mt-3">Eşyaları Arayın</button>
+    </div>
+</section>
+
+<section id="esyaAlani" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-4">
+    @foreach (var esya in Model)
+    {
+        <div class="col">
+            <div class="card custom-card h-100">
+                <div class="card-image-top">
+                    <img src="@esya.ResimYolu" class="card-img-top" alt="Eşya Fotoğrafı" style="object-fit: cover; height: 200px;" />
+                    <span class="position-absolute top-0 end-0 m-2 badge bg-@(esya.BulunduMu ? "success" : "danger")">
+                        @(esya.BulunduMu ? "Bulundu" : "Kayıp")
+                    </span>
+                </div>
+                <div class="card-body text-light d-flex flex-column justify-content-between">                    
+                    <h5 class="card-title fw-bold">@esya.Baslik</h5>
+                    <p class="card-text text-muted">@esya.Aciklama</p>
+                    <p><i class="bi bi-geo-alt"></i> @esya.Konum</p>                    
+                    <div class="text-center mt-3">
+                        <a class="btn btn-outline-light btn-sm" href="/Esya/Detay/@esya.Id">Detaylar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script>
+    let baslangic = 6;
+    const adet = 6;
+    let yukleniyor = false;
+    let bitti = false;
+    let aramaModu = false;
+    let sonArama = '';
+
+    function kartHtml(esya) {
+        return `
+        <div class="col">
+            <div class="card custom-card h-100">
+                <img src="${esya.resimYolu}" class="card-img-top" alt="Eşya Fotoğrafı" style="object-fit: cover; height: 200px;" />
+                <div class="card-body text-light d-flex flex-column justify-content-between">
+                    <p class="fw-bold text-${esya.bulunduMu ? "success" : "danger"}">
+                        ${esya.bulunduMu ? "Bulundu" : "Kayıp"}
+                    </p>
+                    <h5 class="card-title fw-bold">${esya.baslik}</h5>
+                    <p class="card-text text-muted">${esya.aciklama}</p>
+                    <p><i class="bi bi-geo-alt"></i> ${esya.konum}</p>                    
+                    <div class="text-center mt-3">
+                        <a class="btn btn-outline-light btn-sm" href="/Esya/Detay/${esya.id}">
+                            Detaylar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function esyaYukle() {
+        if (yukleniyor || bitti || aramaModu) return;
+        yukleniyor = true;
+
+        fetch(`/Home/EsyalariGetir?baslangic=${baslangic}&adet=${adet}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    bitti = true;
+                    return;
+                }
+                baslangic += data.length;
+                const html = data.map(kartHtml).join('');
+                document.getElementById("esyaAlani").insertAdjacentHTML('beforeend', html);
+                yukleniyor = false;
+            })
+            .catch(() => {
+                yukleniyor = false;
+            });
+    }
+
+    function esyaAra() {
+        const arama = document.getElementById('arama').value.trim();
+        if (arama === '') {
+            // Arama kutusu boşsa, eski davranışa dön
+            aramaModu = false;
+            baslangic = 6;
+            bitti = false;
+            document.getElementById("esyaAlani").innerHTML = '';
+            esyaYukle();
+            return;
+        }
+        aramaModu = true;
+        sonArama = arama;
+        fetch(`/Home/EsyaAra?arama=${encodeURIComponent(arama)}&baslangic=0&adet=100`)
+            .then(res => res.json())
+            .then(data => {
+                const html = data.map(kartHtml).join('');
+                document.getElementById("esyaAlani").innerHTML = html;
+            });
+    }
+
+    window.addEventListener("scroll", () => {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = document.documentElement.scrollTop;
+        const clientHeight = document.documentElement.clientHeight;
+
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+            esyaYukle();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", esyaYukle);
+    document.getElementById('araBtn').addEventListener('click', esyaAra);
+    document.getElementById('arama').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            esyaAra();
+        }
+    });
+</script>
+

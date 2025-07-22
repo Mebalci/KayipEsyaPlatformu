@@ -1,0 +1,58 @@
+﻿@{
+    var menu = new[] {
+        new { Action="Profil",      Icon="user-circle",     Text="Profil Bilgileri" },        
+        new { Action="Sifre",       Icon="lock",            Text="Şifre Değiştir" },
+        new { Action="Bildirimler", Icon="bell",            Text="Bildirimler" },
+        new { Action="Esyalarim",   Icon="box",             Text="Eşyalarım" },
+        new { Action="Mesajlarim",  Icon="comments",        Text="Mesajlarım" }
+    };
+}
+
+<style>
+    .sidebar-footer {
+    width: 100%;
+    padding: 1.2rem 0 0.5rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@@media (max-width: 600px) {
+    .sidebar-footer {
+        padding: 0.8rem 0 0.3rem 0;
+    }
+     
+}
+</style>
+
+<div class="sidebar-container">
+    <div class="sidebar-header">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <h6 class="sidebar-name">@User.Identity.Name</h6>
+        <p class="sidebar-status"><i class="fas fa-circle"></i> Çevrimiçi</p>
+
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            @foreach (var item in menu)
+            {
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-action="@item.Action">
+                        <i class="nav-icon fas fa-@item.Icon"></i>
+                        <span class="nav-text">@item.Text</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+    <div class="sidebar-footer">
+        <form asp-area="Identity" asp-page="/Account/Logout"
+      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-light btn-sm">
+        <i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span>
+    </button>
+
+           
+</form>
+    </div>
+</div>

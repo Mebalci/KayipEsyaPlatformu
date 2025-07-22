@@ -1,0 +1,43 @@
+﻿@page
+@model EmailModel
+@{
+    ViewData["Title"] = "E-posta Yönetimi";
+    ViewData["ActivePage"] = ManageNavPages.Email;   
+
+}
+
+<h3 class="text-white mb-4">E-posta Adresiniz</h3>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Input.NewEmail" class="form-label text-white"></label>
+                <input asp-for="Input.NewEmail" class="form-control" />
+                <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">E-postayı Güncelle</button>
+        </form>
+
+        @if (Model.IsEmailConfirmed)
+        {
+            <div class="alert alert-success mt-3">E-posta adresiniz onaylı: <strong>@Model.Email</strong></div>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="SendVerificationEmail">
+                <div class="form-text text-white">E-posta adresiniz henüz onaylanmadı: <strong>@Model.Email</strong></div>
+                <button type="submit" class="btn btn-secondary mt-2">Doğrulama e-postası gönder</button>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,156 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using KayipEsyaPlatformu.Areas.Identity.Pages.Account.Manage
+
+@{
+    var activePage = ViewData["ActivePage"] as string;
+}
+
+<div class="sidebar-container">
+    <!-- Profil Bilgileri -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <h6 class="profile-name">Kullanýcý Adý</h6>
+        <p class="profile-status">
+            <i class="fas fa-circle" style="font-size: 0.6rem; margin-right: 0.25rem;"></i>
+            Çevrimiçi
+        </p>
+    </div>
+
+    <!-- Menü -->
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.Index == activePage ? "active" : "")" asp-page="./Index">
+                    <i class="nav-icon fas fa-user-circle"></i>
+                    <span class="nav-text">Profil Bilgileri</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.Email == activePage ? "active" : "")" asp-page="./Email">
+                    <i class="nav-icon fas fa-envelope"></i>
+                    <span class="nav-text">E-posta Deðiþtir</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.ChangePassword == activePage ? "active" : "")" asp-page="./ChangePassword">
+                    <i class="nav-icon fas fa-lock"></i>
+                    <span class="nav-text">Þifre Deðiþtir</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.PersonalData == activePage ? "active" : "")" asp-page="./PersonalData">
+                    <i class="nav-icon fas fa-database"></i>
+                    <span class="nav-text">Kiþisel Verilerim</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.TwoFactorAuthentication == activePage ? "active" : "")" asp-page="./TwoFactorAuthentication">
+                    <i class="nav-icon fas fa-shield-alt"></i>
+                    <span class="nav-text">Ýki Aþamalý Doðrulama</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.Bildirimler == activePage ? "active" : "")" asp-page="./Bildirimler">
+                    <i class="nav-icon fas fa-bell"></i>
+                    <span class="nav-text">Bildirimler</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ManageNavPages.MyItems == activePage ? "active" : "")" asp-page="./MyItems">
+                    <i class="nav-icon fas fa-box"></i>
+                    <span class="nav-text">Eþyalarým</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/Identity/Account/Logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Çýkýþ Yap</span>
+        </a>
+    </div>
+</div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+       
+        body {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar-container {
+            background: linear-gradient(135deg, #0c2440 0%, #1a3a5c 100%);
+            padding: 0;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3f68f9, #39ff14);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .profile-avatar i {
+                font-size: 2rem;
+                color: white;
+            }
+
+        .profile-name {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .profile-status {
+            color: #39ff14;
+            font-size: 0.875rem;
+        }
+
+        .nav-link {
+            color: #ccc;
+            padding: 0.75rem 1.25rem;
+            transition: 0.3s;
+            border-radius: 0;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                background-color: rgba(255,255,255,0.1);
+                color: white;
+            }
+
+        .logout-btn {
+            color: #ff4d4d;
+            background: rgba(255,77,77,0.1);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+            .logout-btn:hover {
+                background-color: rgba(255,77,77,0.3);
+                color: white;
+            }
+    </style>
+

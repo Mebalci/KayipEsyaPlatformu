@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Kullanıcı Paneli";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+</head>
+<div class="container-fluid py-3">
+    <div class="row flex-lg-nowrap">
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            @Html.Partial("_Sidebar")
+        </div>
+        <div class="col-12 col-lg-9">
+            <div id="panel-main-content" class="main-content-container"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadPanelPartial(action) {
+            $('#panel-main-content').html(
+                '<div class="text-center text-muted py-5">' +
+                '<i class="fas fa-spinner fa-spin fa-2x"></i><br/>Yükleniyor...' +
+                '</div>');
+            $.ajax({
+                url: '/KullaniciPaneli/' + action,
+                type: 'GET',
+                success: function (data) {
+                    $('#panel-main-content').html(data);
+                },
+                error: function () {
+                    $('#panel-main-content').html('<div class="alert alert-danger">İçerik yüklenemedi.</div>');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // İlk açılışta Profil sekmesi
+            loadPanelPartial('Profil');
+
+            // Menüye tıklama ile partial yükle
+            $(document).on('click', '.sidebar-nav .nav-link', function (e) {
+                e.preventDefault();
+                $('.sidebar-nav .nav-link').removeClass('active');
+                $(this).addClass('active');
+                var action = $(this).data('action');
+                loadPanelPartial(action);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,275 @@
+<style>
+    .admin-panel-table { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table th { background: #22345a; color: #b8cbfa; font-weight: 600; cursor: pointer; user-select: none; }
+    .admin-panel-table td { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table tr { border-bottom: 1px solid #233563; transition: background-color 0.2s; }
+    .admin-panel-table tr:hover { background-color: #1e3a5a !important; }
+    .admin-panel-table tr:last-child { border-bottom: none; }
+    .admin-panel-table .btn-danger, .admin-panel-table .btn-warning { border-radius: 0.5rem; font-weight: 600; padding: 0.4em 1.1em; font-size: 0.98rem; }
+    .admin-panel-search { margin-bottom: 1.2rem; max-width: 350px; }
+    .admin-panel-add-btn { background: #3f68f9; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; margin-bottom: 1.2rem; }
+    .admin-panel-add-btn:hover { background: #2238a8; color: #fff; }
+    .mahalle-ad { cursor: pointer; color: #66ccff; text-decoration: underline; }
+    .mahalle-ad:hover { color: #99ddff; }
+</style>
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <select class="form-select admin-panel-search" id="mahalleSehirSec" style="max-width: 200px;"></select>
+    <select class="form-select admin-panel-search" id="mahalleIlceSec" style="max-width: 200px;"></select>
+    <input type="text" class="form-control admin-panel-search" id="mahalleArama" placeholder="Mahalle ara..." />
+    <button class="btn admin-panel-add-btn" onclick="mahalleEkleModalAc()">
+        <i class="fas fa-plus me-2"></i>Yeni Mahalle Ekle
+    </button>
+</div>
+<table class="table admin-panel-table table-bordered align-middle" id="mahalleler-tablosu">
+    <thead>
+        <tr>
+            <th onclick="mahalleTabloSirala(0)">#</th>
+            <th onclick="mahalleTabloSirala(1)">Mahalle Adı</th>
+            <th onclick="mahalleTabloSirala(2)">Şehir</th>
+            <th onclick="mahalleTabloSirala(3)">İlçe</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<div class="d-flex justify-content-center my-2" id="mahallePagination"></div>
+<!-- Ekle Modal -->
+<div class="modal fade" id="mahalleEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni Mahalle Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="mahalleEkleForm">
+                    <div class="mb-3">
+                        <label for="mahalleSehirEkle" class="form-label">Şehir</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="mahalleSehirEkle" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mahalleIlceEkle" class="form-label">İlçe</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="mahalleIlceEkle" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mahalleAd" class="form-label">Mahalle Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="mahalleAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="mahalleEkle()">Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Düzenle Modal -->
+<div class="modal fade" id="mahalleDuzenleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Mahalle Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="mahalleDuzenleForm">
+                    <input type="hidden" id="duzenleMahalleId">
+                    <div class="mb-3">
+                        <label for="duzenleMahalleSehir" class="form-label">Şehir</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="duzenleMahalleSehir" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duzenleMahalleIlce" class="form-label">İlçe</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="duzenleMahalleIlce" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duzenleMahalleAd" class="form-label">Mahalle Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="duzenleMahalleAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-warning" onclick="mahalleDuzenle()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function(){
+let mahalleTabloVeri = [];
+let mahalleTabloSiralaKriter = 0;
+let mahalleTabloSiralaAsc = true;
+let sehirlerCache = [];
+let ilcelerCache = [];
+let sayfa = 1;
+let sayfaBoyutu = 20;
+function sehirleriYukleDropdown(cb) {
+    $.get('/AdminPaneli/SehirleriGetir', function(data) {
+        sehirlerCache = data;
+        let html = '';
+        data.forEach(function(s) {
+            html += `<option value="${s.id}">${s.ad}</option>`;
+        });
+        $('#mahalleSehirSec, #mahalleSehirEkle, #duzenleMahalleSehir').html('<option value="">Şehir seçin</option>' + html);
+        if(cb) cb();
+    });
+}
+function ilceleriYukleDropdown(sehirId, targetSelector, selectedId) {
+    if(!sehirId) {
+        $(targetSelector).html('<option value="">İlçe seçin</option>');
+        return;
+    }
+    $.get('/AdminPaneli/IlceleriGetirBySehir?sehirId='+sehirId, function(data) {
+        ilcelerCache = data;
+        let html = '<option value="">İlçe seçin</option>';
+        data.forEach(function(i) {
+            html += `<option value="${i.id}"${selectedId && selectedId==i.id ? ' selected' : ''}>${i.ad}</option>`;
+        });
+        $(targetSelector).html(html);
+    });
+}
+function mahalleleriYukle() {
+    $.get('/AdminPaneli/MahalleleriGetir', function(data) {
+        mahalleTabloVeri = data;
+        sayfa = 1;
+        mahalleTabloFiltreleVeGoster();
+    });
+}
+function mahalleTabloFiltreleVeGoster() {
+    var arama = $('#mahalleArama').val().toLowerCase();
+    var sehirId = $('#mahalleSehirSec').val();
+    var ilceId = $('#mahalleIlceSec').val();
+    var filtreli = mahalleTabloVeri.filter(function(m) {
+        var sehirMatch = !sehirId || m.sehirId == sehirId;
+        var ilceMatch = !ilceId || m.ilceId == ilceId;
+        return sehirMatch && ilceMatch && (m.ad.toLowerCase().includes(arama) || m.sehirAd.toLowerCase().includes(arama) || m.ilceAd.toLowerCase().includes(arama));
+    });
+    filtreli.sort(function(a, b) {
+        let alanlar = ['id','ad','sehirAd','ilceAd'];
+        let key = alanlar[mahalleTabloSiralaKriter];
+        let valA = a[key];
+        let valB = b[key];
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return mahalleTabloSiralaAsc ? -1 : 1;
+        if (valA > valB) return mahalleTabloSiralaAsc ? 1 : -1;
+        return 0;
+    });
+    // Sayfalama
+    var toplamKayit = filtreli.length;
+    var toplamSayfa = Math.ceil(toplamKayit / sayfaBoyutu);
+    if (sayfa > toplamSayfa) sayfa = toplamSayfa || 1;
+    var baslangic = (sayfa-1)*sayfaBoyutu;
+    var gorunenler = filtreli.slice(baslangic, baslangic+sayfaBoyutu);
+    var tbody = '';
+    gorunenler.forEach(function(m, idx) {
+        tbody += `<tr>
+            <td>${baslangic+idx+1}</td>
+            <td><span class="mahalle-ad" onclick="mahalleDuzenleModalAc(${m.id}, '${m.ad}', ${m.sehirId}, ${m.ilceId})">${m.ad}</span></td>
+            <td>${m.sehirAd}</td>
+            <td>${m.ilceAd}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="mahalleDuzenleModalAc(${m.id}, '${m.ad}', ${m.sehirId}, ${m.ilceId})"><i class="fas fa-edit"></i> Düzenle</button>
+                <button class="btn btn-danger btn-sm" onclick="mahalleSil(${m.id})"><i class="fas fa-trash"></i> Sil</button>
+            </td>
+        </tr>`;
+    });
+    $('#mahalleler-tablosu tbody').html(tbody);
+    // Sayfa butonları
+    var pagHtml = '';
+    if (toplamSayfa > 1) {
+        pagHtml += `<nav><ul class="pagination pagination-sm">`;
+        pagHtml += `<li class="page-item${sayfa==1?' disabled':''}"><a class="page-link" href="#" onclick="mahalleSayfaGit(${sayfa-1});return false;">&laquo;</a></li>`;
+        for (var i=1; i<=toplamSayfa; i++) {
+            pagHtml += `<li class="page-item${sayfa==i?' active':''}"><a class="page-link" href="#" onclick="mahalleSayfaGit(${i});return false;">${i}</a></li>`;
+        }
+        pagHtml += `<li class="page-item${sayfa==toplamSayfa?' disabled':''}"><a class="page-link" href="#" onclick="mahalleSayfaGit(${sayfa+1});return false;">&raquo;</a></li>`;
+        pagHtml += `</ul></nav>`;
+    }
+    $('#mahallePagination').html(pagHtml);
+}
+function mahalleSil(id) {
+    if (!confirm('Bu mahalleyi silmek istediğinize emin misiniz?')) return;
+    $.post('/AdminPaneli/MahalleSil', { id: id }, function(resp) {
+        alert(resp.message);
+        if (resp.success) mahalleleriYukle();
+    });
+}
+window.mahalleTabloSirala = function(kriter) {
+    if (mahalleTabloSiralaKriter === kriter) {
+        mahalleTabloSiralaAsc = !mahalleTabloSiralaAsc;
+    } else {
+        mahalleTabloSiralaAsc = true;
+    }
+    mahalleTabloSiralaKriter = kriter;
+    mahalleTabloFiltreleVeGoster();
+}
+window.mahalleEkleModalAc = function() {
+    $('#mahalleAd').val('');
+    sehirleriYukleDropdown(function(){
+        var seciliSehir = $('#mahalleSehirSec').val();
+        if(seciliSehir) $('#mahalleSehirEkle').val(seciliSehir);
+        ilceleriYukleDropdown($('#mahalleSehirEkle').val(), '#mahalleIlceEkle');
+        $('#mahalleEkleModal').modal('show');
+    });
+}
+$('#mahalleSehirEkle').on('change', function(){
+    ilceleriYukleDropdown($(this).val(), '#mahalleIlceEkle');
+});
+window.mahalleEkle = function() {
+    var ad = $('#mahalleAd').val().trim();
+    var sehirId = $('#mahalleSehirEkle').val();
+    var ilceId = $('#mahalleIlceEkle').val();
+    if (!ad) { alert('Mahalle adı boş olamaz.'); return; }
+    if (!sehirId) { alert('Şehir seçmelisiniz.'); return; }
+    if (!ilceId) { alert('İlçe seçmelisiniz.'); return; }
+    $.post('/AdminPaneli/MahalleEkle', { ad: ad, sehirId: sehirId, ilceId: ilceId }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#mahalleEkleModal').modal('hide');
+            mahalleleriYukle();
+        }
+    });
+}
+window.mahalleDuzenleModalAc = function(id, ad, sehirId, ilceId) {
+    $('#duzenleMahalleId').val(id);
+    sehirleriYukleDropdown(function(){
+        $('#duzenleMahalleAd').val(ad);
+        $('#duzenleMahalleSehir').val(sehirId);
+        ilceleriYukleDropdown(sehirId, '#duzenleMahalleIlce', ilceId);
+        $('#mahalleDuzenleModal').modal('show');
+    });
+}
+$('#duzenleMahalleSehir').on('change', function(){
+    ilceleriYukleDropdown($(this).val(), '#duzenleMahalleIlce');
+});
+window.mahalleDuzenle = function() {
+    var id = $('#duzenleMahalleId').val();
+    var ad = $('#duzenleMahalleAd').val().trim();
+    var sehirId = $('#duzenleMahalleSehir').val();
+    var ilceId = $('#duzenleMahalleIlce').val();
+    if (!ad) { alert('Mahalle adı boş olamaz.'); return; }
+    if (!sehirId) { alert('Şehir seçmelisiniz.'); return; }
+    if (!ilceId) { alert('İlçe seçmelisiniz.'); return; }
+    $.post('/AdminPaneli/MahalleDuzenle', { id: id, ad: ad, sehirId: sehirId, ilceId: ilceId }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#mahalleDuzenleModal').modal('hide');
+            mahalleleriYukle();
+        }
+    });
+}
+$('#mahalleArama').on('input', mahalleTabloFiltreleVeGoster);
+$('#mahalleSehirSec').on('change', function(){
+    ilceleriYukleDropdown($(this).val(), '#mahalleIlceSec');
+    mahalleTabloFiltreleVeGoster();
+});
+$('#mahalleIlceSec').on('change', mahalleTabloFiltreleVeGoster);
+$(function(){
+    sehirleriYukleDropdown();
+    mahalleleriYukle();
+});
+})();
+</script> 

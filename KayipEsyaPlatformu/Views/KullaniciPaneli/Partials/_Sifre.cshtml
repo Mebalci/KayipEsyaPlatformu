@@ -1,0 +1,200 @@
+﻿@model ChangePasswordViewModel
+
+<style>
+    .change-password-container {
+        max-width: 450px;
+        margin: 0 auto;
+        background: rgba(42, 67, 101, 0.4);
+        border-radius: 20px;
+        padding: 0rem 2.2rem 1.2rem 2.2rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        margin-top: 2rem;
+        color: #fff;
+    }
+
+    .change-password-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        margin-bottom: 1.6rem;
+        text-align: left;
+        color: #fff;
+    }
+
+    .cp-form-label {
+        color: #8bb8e8;
+        font-weight: 500;
+        font-size: 1rem;
+        margin-bottom: .3rem;
+        display: block;
+    }
+
+    .cp-form-control {
+        background: rgba(19, 42, 80, 0.95);
+        border: 2px solid #3f68f9;
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1.07rem;
+        padding: 1.1em 1.15em;
+        margin-bottom: 0.55rem;
+        width: 100%;
+        transition: border 0.18s, box-shadow 0.16s;
+    }
+
+        .cp-form-control:focus {
+            outline: none;
+            border-color: #3f68f9;
+            background: #253a61;
+            color: #fff;
+            box-shadow: 0 0 0 2px #3f68f977;
+        }
+
+        .cp-form-control::placeholder {
+            color: #8bb8e8;
+            opacity: .8;
+        }
+
+    .cp-btn-group {
+        margin-top: 2rem;
+        display: flex;
+        gap: 16px;
+        justify-content: flex-end;
+    }
+
+    .cp-btn {
+        width: 100%;
+        padding: 0.85em 0;
+        border-radius: 12px !important;
+        font-size: 1.08rem;
+        font-weight: 600;
+        margin: 0;
+        box-shadow: none;
+        border: 2px solid transparent;
+        transition: all 0.16s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        letter-spacing: 0.01em;
+    }
+
+    .cp-btn-primary {
+        background: #3f68f9;
+        color: #fff;
+        border: 2px solid #3f68f9;
+    }
+
+        .cp-btn-primary:hover {
+            background: #2238a8;
+            border-color: #2238a8;
+            color: #fff;
+            transform: translateY(-1px) scale(1.01);
+        }
+
+    .cp-btn-outline {
+        background: transparent;
+        color: #fff;
+        border: 2px solid #fff;
+    }
+
+        .cp-btn-outline:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border-color: #fff;
+            transform: scale(1.03);
+        }
+
+    .cp-validation {
+        color: #ff6a3d;
+        font-size: .96em;
+        font-weight: 500;
+        margin-bottom: .55rem;
+    }
+
+    .cp-alert {
+        background: linear-gradient(90deg, #ffe27a 0%, #ffb700 100%);
+        color: #222;
+        padding: 0.9em 1.3em;
+        border-radius: 8px;
+        font-size: 1.05em;
+        font-weight: 500;
+        text-align: center;
+        margin-bottom: 1.25em;
+        box-shadow: 0 2px 10px #ffb70022;
+    }
+
+    @@media (max-width: 600px) {
+        .change-password-container
+
+    {
+        padding: 1.2rem 0.8rem;
+    }
+
+    .cp-btn-group {
+        flex-direction: column;
+    }
+
+    .cp-btn {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="change-password-title"><i class="fas fa-lock me-2"></i>Şifre Değiştir</div>
+
+<div class="change-password-container" style="background-color:transparent">  
+    <form id="changePasswordForm" autocomplete="off">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="OldPassword" class="cp-form-label"></label>
+            <input asp-for="OldPassword" class="cp-form-control" type="password" placeholder="Mevcut şifrenizi giriniz" />
+            <span asp-validation-for="OldPassword" class="cp-validation"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NewPassword" class="cp-form-label"></label>
+            <input asp-for="NewPassword" class="cp-form-control" type="password" placeholder="Yeni şifre belirleyin" />
+            <span asp-validation-for="NewPassword" class="cp-validation"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword" class="cp-form-label"></label>
+            <input asp-for="ConfirmPassword" class="cp-form-control" type="password" placeholder="Yeni şifreyi tekrar girin" />
+            <span asp-validation-for="ConfirmPassword" class="cp-validation"></span>
+        </div>
+
+        <div class="cp-btn-group">
+            <button type="reset" class="cp-btn cp-btn-primary"><i class="fas fa-undo"></i> Temizle</button>
+            <button type="submit" class="cp-btn cp-btn-outline"><i class="fas fa-save"></i> Şifreyi Güncelle</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#changePasswordForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = $(this).serialize();
+
+            $.ajax({
+                url: '@Url.Action("SifreGuncelle", "KullaniciPaneli")',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#changePasswordForm')[0].reset();
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+                }
+            });
+        });
+    });
+</script>

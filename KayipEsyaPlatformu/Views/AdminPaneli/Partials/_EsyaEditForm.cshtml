@@ -1,0 +1,328 @@
+@model KayipEsyaPlatformu.Models.Esya
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    .modal-content {
+        background: #0c2440 !important;
+        color: #fff;
+        border-radius: 18px;
+    }
+    .modal-header {
+        background: linear-gradient(90deg, #122849 70%, #1a3261 100%);
+        border-bottom: 1.5px solid #23314a;
+        color: #fff;
+        border-radius: 18px 18px 0 0;
+        padding-top: 1.2rem;
+        padding-bottom: 1.2rem;
+    }
+    .modal-title {
+        font-weight: 700;
+        color: #fff;
+        font-size: 1.4rem;
+    }
+    .modal-body {
+        padding: 2.2rem 2rem 1.1rem 2rem;
+        color: #fff;
+        background: #0c2440;
+        border-radius: 0 0 18px 18px;
+    }
+    .custom-input, .modal-body input, .modal-body select, .modal-body textarea {
+        background: #132a50 !important;
+        color: #fff !important;
+        border: 1.5px solid #3f68f9 !important;
+        border-radius: 12px !important;
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 0.95em 1.1em;
+        margin-bottom: 0.7rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        width: 100%;
+        transition: border 0.16s, box-shadow 0.14s;
+    }
+    .custom-input:focus {
+        outline: none;
+        border-color: #66bfff !important;
+        background: #253a61 !important;
+        box-shadow: 0 0 0 2px #3f68f955;
+    }
+    .custom-input::placeholder { color: #b5d1f6 !important; opacity: 0.89; }
+    #edit-map {
+        width: 100%;
+        min-height: 200px;
+        max-height: 260px;
+        height: 220px;
+        border-radius: 10px;
+        border: 2px solid #3f68f9;
+        margin-bottom: 0.6em;
+        background: #223354;
+        z-index: 3;
+    }
+    .modal-footer {
+        background: transparent;
+        border-top: none;
+        padding: 1.5rem 2rem 1.2rem 2rem;
+        border-radius: 0 0 18px 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 18px;
+    }
+    .modal-footer .btn-primary {
+        background: #3f68f9;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 0.90em 2.5em;
+        font-size: 1.13rem;
+        transition: background 0.17s, border 0.14s, color 0.13s;
+    }
+    .modal-footer .btn-primary:hover {
+        background: #355be0;
+    }
+    .modal-footer .btn-secondary {
+        background: transparent;
+        color: #fff;
+        border: 2px solid #fff;
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 0.90em 2.5em;
+        font-size: 1.13rem;
+    }
+    .modal-footer .btn-secondary:hover {
+        background: rgba(255,255,255,0.12);
+    }
+    .img-fluid.rounded, #imagePreview img {
+        box-shadow: 0 2px 12px rgba(79,104,249,0.18);
+        background: #223354;
+        border-radius: 11px;
+    }
+    #imagePreview {
+        border-radius: 10px;
+        border: 2px solid #3f68f9;
+        background: #1b2640;
+        padding: 0.5em;
+        max-width: 170px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    @@media (max-width: 991px) {
+        .modal-body .row > div[class^="col"] { margin-bottom: 1.1rem; }
+        .modal-body { padding: 1.2rem 0.5rem 0.6rem 0.5rem; }
+        .modal-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+        .modal-footer .btn { width: 100%; }
+    }
+</style>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class="fas fa-edit me-2"></i> Eşyayı Düzenle</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+</div>
+<div class="modal-body">
+    <form id="esyaEditForm" enctype="multipart/form-data">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <div class="row">
+            <div class="col-md-6">
+                <input name="Baslik" class="custom-input" placeholder="Başlık" value="@Model.Baslik" required maxlength="100" />
+                <textarea name="Aciklama" class="custom-input" placeholder="Açıklama" rows="3" required maxlength="500">@Model.Aciklama</textarea>
+                <select name="KategoriId" class="custom-input" required>
+                    <option value="">Kategori Seçin</option>
+                    @foreach(var k in ViewBag.Kategoriler) {
+                        <option value="@k.Id" selected=@(k.Id == Model.KategoriId ? "selected" : "")>@k.Ad</option>
+                    }
+                </select>
+                <select name="DurumId" class="custom-input" required>
+                    <option value="">Durum Seçin</option>
+                    @foreach(var d in ViewBag.Durumlar) {
+                        <option value="@d.Id" selected=@(d.Id == Model.DurumId ? "selected" : "")>@d.Ad</option>
+                    }
+                </select>
+                <input name="Marka" class="custom-input" placeholder="Marka" value="@Model.Marka" maxlength="50" />
+                <input name="Model" class="custom-input" placeholder="Model" value="@Model.Model" maxlength="50" />
+                <select name="RenkId" id="RenkId" class="custom-input" required>
+                    <option value="">Renk Seçin</option>
+                    @foreach(var r in ViewBag.Renkler) {
+                        <option value="@r.Id" selected=@(r.Id == Model.RenkId ? "selected" : "")>@r.Ad</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <select id="SehirId" name="SehirId" class="custom-input" required>
+                    <option value="">Şehir Seçin</option>
+                    @foreach (var sehir in ViewBag.Sehirler) {
+                        <option value="@sehir.Id" >@sehir.Ad</option>
+                    }
+                </select>
+                <select id="IlceId" name="IlceId" class="custom-input" required>
+                    <option value="">İlçe Seçin</option>
+                    @foreach (var ilce in ViewBag.Ilceler) {
+                        <option value="@ilce.Id" >@ilce.Ad</option>
+                    }
+                </select>
+                <select id="MahalleId" name="MahalleId" class="custom-input" required>
+                    <option value="">Mahalle Seçin</option>
+                    @foreach (var mahalle in ViewBag.Mahalleler) {
+                        <option value="@mahalle.Id" >@mahalle.Ad</option>
+                    }
+                </select>
+                <input type="hidden" id="Konum" name="Konum" class="custom-input" placeholder="Adres (Otomatik doldurulur)" value="@Model.Konum" readonly />
+                <div id="edit-map"></div>
+                <input type="hidden" id="Enlem" name="Enlem" value="@Model.Enlem" />
+                <input type="hidden" id="Boylam" name="Boylam" value="@Model.Boylam" />
+                <input type="file" name="ResimDosyasi" class="custom-input" accept="image/*" onchange="previewImage(this)" />
+                <div id="imagePreview" class="mt-2" style="display:none;">
+                    <img id="previewImg" class="img-fluid rounded" style="max-height: 140px;" alt="Önizleme" />
+                </div>
+                <input type="date" name="Tarih" class="custom-input" value="@(Model.Tarih.ToString("yyyy-MM-dd"))" required />
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <i class="fas fa-times me-1"></i> İptal
+    </button>
+    <button type="button" class="btn btn-primary" onclick="saveEsya()">
+        <i class="fas fa-save me-1"></i>
+        @(Model.Id == 0 ? "Ekle" : "Güncelle")
+    </button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    var seciliIlceId = '@Model.IlceId';
+    var seciliMahalleId = '@Model.MahalleId';
+    var modelEnlem = parseFloat('@Model.Enlem'.replace(',', '.')) || 39.9334;
+    var modelBoylam = parseFloat('@Model.Boylam'.replace(',', '.')) || 32.8597;
+    var map, marker;
+
+    // Adres alanını sadece dropdowndan veya haritadan adres seçilirse güncelleriz!
+    function setKonumField(konum) {
+        $('#Konum').val(konum);
+    }
+
+    function setCoordinates(lat, lon) {
+        $('#Enlem').val(lat);
+        $('#Boylam').val(lon);
+    }
+
+    // --- Harita fonksiyonları ---
+    function initEditMap() {
+        // Eğer map daha önce oluştuysa yok et:
+        if (map) {
+            map.remove();
+            map = null;
+        }
+        // Enlem-boylam modelden veya varsayılan
+        let lat = $('#Enlem').val() ? parseFloat($('#Enlem').val()) : modelEnlem;
+        let lng = $('#Boylam').val() ? parseFloat($('#Boylam').val()) : modelBoylam;
+        map = L.map('edit-map', {scrollWheelZoom: true, attributionControl: false});
+        map.setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+        // Marker sürüklendiğinde koordinat ve adres güncelle
+        marker.on('dragend', function (e) {
+            const pos = marker.getLatLng();
+            setCoordinates(pos.lat, pos.lng);
+            // Ters geocode (koordinattan adres)
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.lat}&lon=${pos.lng}&accept-language=tr`)
+            .then(r => r.json())
+            .then(d => {
+                let adres = (d.address.neighbourhood || d.address.suburb || d.address.village || d.address.town || d.address.city_district || d.address.city || "") + 
+                    (d.address.county ? ", " + d.address.county : "") + 
+                    (d.address.state ? ", " + d.address.state : "");
+                setKonumField(adres.replace(/^, /, '').replace(/(^,|,$)/g, '').trim());
+            });
+        });
+        // Haritaya tıklayınca marker'ı oraya taşı ve aynı şekilde güncelle
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            setCoordinates(e.latlng.lat, e.latlng.lng);
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&accept-language=tr`)
+            .then(r => r.json())
+            .then(d => {
+                let adres = (d.address.neighbourhood || d.address.suburb || d.address.village || d.address.town || d.address.city_district || d.address.city || "") + 
+                    (d.address.county ? ", " + d.address.county : "") + 
+                    (d.address.state ? ", " + d.address.state : "");
+                setKonumField(adres.replace(/^, /, '').replace(/(^,|,$)/g, '').trim());
+            });
+        });
+        // Harita ilk açıldığında adresi de güncelle
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=tr`)
+        .then(r => r.json())
+        .then(d => {
+            let adres = (d.address.neighbourhood || d.address.suburb || d.address.village || d.address.town || d.address.city_district || d.address.city || "") + 
+                (d.address.county ? ", " + d.address.county : "") + 
+                (d.address.state ? ", " + d.address.state : "");
+            setKonumField(adres.replace(/^, /, '').replace(/(^,|,$)/g, '').trim());
+        });
+    }
+
+    $(document).ready(function () {
+        initEditMap();
+        // Şehir değişince ilçeleri getir
+        $('#SehirId').change(function () {
+            var sehirId = $(this).val();
+            $('#IlceId').html('<option value="">İlçe Seçin</option>');
+            $('#MahalleId').html('<option value="">Mahalle Seçin</option>');
+            if (!sehirId) return;
+            $.get('/Adres/Ilceler/' + sehirId, function (data) {
+                data.forEach(function (ilce) {
+                    $('#IlceId').append('<option value="' + ilce.id + '">' + ilce.ad + '</option>');
+                });
+            });
+        });
+        // İlçe değişince mahalleleri getir
+        $('#IlceId').change(function () {
+            var ilceId = $(this).val();
+            $('#MahalleId').html('<option value="">Mahalle Seçin</option>');
+            if (!ilceId) return;
+            $.get('/Adres/Mahalleler/' + ilceId, function (data) {
+                data.forEach(function (mahalle) {
+                    $('#MahalleId').append('<option value="' + mahalle.id + '">' + mahalle.ad + '</option>');
+                });
+            });
+        });
+        // Seçili değerleri ayarla
+        if (seciliIlceId) $('#IlceId').val(seciliIlceId);
+        if (seciliMahalleId) $('#MahalleId').val(seciliMahalleId);
+    });
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').show();
+                $('#previewImg').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveEsya() {
+        var formData = new FormData($('#esyaEditForm')[0]);
+        $.ajax({
+            url: '/KullaniciPaneli/EsyaDuzenleKaydet',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (resp) {
+                if (resp.success) {
+                    toastr.success(resp.message);
+                    $('#esyaEditModal').modal('hide');
+                    setTimeout(function(){ location.reload(); }, 1200);
+                } else {
+                    toastr.error(resp.message);
+                }
+            },
+            error: function () {
+                toastr.error('Bir hata oluştu.');
+            }
+        });
+    }
+</script> 

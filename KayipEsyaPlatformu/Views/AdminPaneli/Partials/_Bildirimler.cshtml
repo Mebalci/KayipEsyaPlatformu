@@ -1,0 +1,362 @@
+@model List<KayipEsyaPlatformu.Models.Bildirim>
+
+<style>
+    .admin-notification-panel {
+        background: transparent !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .admin-notification-header {
+        background: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .admin-notification-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-mark-all-admin {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-mark-all-admin:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-notification-list {
+        background: transparent !important;
+        padding: 1rem;
+    }
+
+    .admin-notification-item {
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-notification-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .admin-notification-item.unread {
+        background: rgba(34, 62, 103, 0.2) !important;
+        border-color: rgba(79, 222, 128, 0.3) !important;
+        font-weight: 600;
+    }
+
+    .admin-notification-item.unread::before {
+        opacity: 1;
+    }
+
+    .admin-notification-item:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .admin-notification-content {
+        color: #fff;
+        flex: 1;
+    }
+
+    .admin-notification-icon {
+        color: #94a3b8;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+
+    .admin-notification-item.unread .admin-notification-icon {
+        color: #fbbf24;
+        animation: pulse 2s infinite;
+    }
+
+    .admin-notification-text {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+    }
+
+    .admin-notification-date {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        opacity: 0.8;
+    }
+
+    .admin-notification-actions {
+        margin-left: 1rem;
+    }
+
+    .btn-mark-read-admin {
+        background: transparent;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        color: #22c55e;
+        border-radius: 6px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .btn-mark-read-admin:hover {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: #22c55e;
+        color: #22c55e;
+        transform: scale(1.05);
+    }
+
+    .badge-read-admin {
+        background: rgba(148, 163, 184, 0.2) !important;
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 6px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        backdrop-filter: blur(5px);
+    }
+
+    .no-notifications-admin {
+        background: rgba(59, 130, 246, 0.1) !important;
+        border: 1px solid rgba(59, 130, 246, 0.2) !important;
+        color: #93c5fd;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        margin: 0;
+    }
+
+    .no-notifications-admin i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.6;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .admin-notification-item {
+        animation: slideIn 0.3s ease-out;
+    }
+</style>
+
+<div class="admin-notification-panel">
+    <div class="admin-notification-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="admin-notification-title">
+                <i class="fas fa-bell me-2"></i> Admin Bildirimleri
+                @if (Model.Any(x => !x.OkunduMu))
+                {
+                    <span class="badge bg-warning text-dark ms-2">@Model.Count(x => !x.OkunduMu)</span>
+                }
+            </h4>
+            @if (Model.Any(x => !x.OkunduMu))
+            {
+                <button id="btnAllReadAdmin" class="btn-mark-all-admin">
+                    <i class="fas fa-check-double me-2"></i> Tümünü Okundu Yap
+                </button>
+            }
+        </div>
+    </div>
+    <div id="admin-bildirimler-list" class="admin-notification-list">
+        @if (Model.Any())
+        {
+            @foreach (var bildirim in Model.OrderByDescending(x => x.Tarih))
+            {
+                <div class="admin-notification-item d-flex justify-content-between align-items-center @(bildirim.OkunduMu ? "" : "unread")" data-id="@bildirim.Id">
+                    <div class="admin-notification-content d-flex align-items-start">
+                        <i class="fas @(bildirim.OkunduMu ? "fa-bell-slash" : "fa-bell") admin-notification-icon"></i>
+                        <div>
+                            <div class="admin-notification-text">@bildirim.Icerik</div>
+                            <div class="admin-notification-date"><i class="fas fa-clock me-1"></i>@bildirim.Tarih.ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                    </div>
+                    <div class="admin-notification-actions">
+                        @if (!bildirim.OkunduMu)
+                        {
+                            <form asp-action="BildirimOkundu" method="post" class="d-inline-block ajax-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@bildirim.Id" />
+                                <button type="submit" class="btn-mark-read-admin">
+                                    <i class="fas fa-check me-1"></i> Okundu
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge-read-admin"><i class="fas fa-check-circle me-1"></i> Okundu</span>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="no-notifications-admin">
+                <i class="fas fa-bell-slash d-block"></i>
+                <strong>Henüz bildiriminiz yok.</strong>
+                <div class="small mt-1 opacity-75">Yeni bildirimler burada görünecek.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    var userId = '@User.FindFirst("sub")?.Value ?? User.FindFirst("NameIdentifier")?.Value';
+
+    // 1. SignalR ile bağlantı kur ve gruba katıl
+    let connection = new signalR.HubConnectionBuilder()
+        .withUrl("/bildirimHub")
+        .build();
+
+    connection.start().then(function () {
+        connection.invoke("JoinGroup", userId);
+    });
+
+    // 2. Yeni bildirim geldiğinde
+    connection.on("BildirimAl", function (bildirim) {
+        // Panel AJAX ile yenilenir
+        reloadAdminBildirimList();
+        // Geliştirilmiş Toastr popup
+        toastr.options = {
+            closeButton: true,
+            debug: false,
+            newestOnTop: true,
+            progressBar: true,
+            positionClass: "toast-top-right",
+            preventDuplicates: false,
+            onclick: null,
+            showDuration: "300",
+            hideDuration: "1000",
+            timeOut: "8000",
+            extendedTimeOut: "1000",
+            showEasing: "swing",
+            hideEasing: "linear",
+            showMethod: "fadeIn",
+            hideMethod: "fadeOut"
+        };
+
+        toastr.info(`<i class="fas fa-bell me-2"></i><b>${bildirim.icerik}</b>`, "Yeni Bildirim");
+    });
+
+    // 3. Okundu yap (tek bildirim)
+    $(document).on('click', '.btnOkunduYap', function () {
+        let id = $(this).data('id');
+        let $item = $(this).closest('.admin-notification-item');
+
+        // Loading state
+        $(this).html('<i class="fas fa-spinner fa-spin me-1"></i> İşleniyor...');
+        $(this).prop('disabled', true);
+
+        $.post('/AdminPaneli/BildirimOkundu', { id }, function () {
+            // Smooth animation
+            $item.addClass('fade-out');
+            setTimeout(() => {
+                reloadAdminBildirimList();
+            }, 300);
+        }).fail(function() {
+            // Reset button on error
+            $(this).html('<i class="fas fa-check me-1"></i> Okundu');
+            $(this).prop('disabled', false);
+            toastr.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+        });
+    });
+
+    // 4. Tümünü okundu yap
+    $(document).on('click', '#btnAllReadAdmin', function () {
+        let $btn = $(this);
+        let originalText = $btn.html();
+
+        // Loading state
+        $btn.html('<i class="fas fa-spinner fa-spin me-2"></i> İşleniyor...');
+        $btn.prop('disabled', true);
+
+        $.post('/AdminPaneli/TumunuOkunduYap', function () {
+            setTimeout(() => {
+                reloadAdminBildirimList();
+                toastr.success('<i class="fas fa-check-double me-2"></i>Tüm bildirimler okundu olarak işaretlendi!');
+            }, 500);
+        }).fail(function() {
+            // Reset button on error
+            $btn.html(originalText);
+            $btn.prop('disabled', false);
+            toastr.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+        });
+    });
+
+    // 5. Bildirim panelini AJAX ile yenile
+    function reloadAdminBildirimList() {
+        $.get('/AdminPaneli/Bildirimler', function (html) {
+            $('#panel-main-content').fadeOut(200, function() {
+                $(this).html(html).fadeIn(300);
+            });
+        });
+    }
+
+    // Additional CSS for fade out animation
+    $('<style>')
+        .prop('type', 'text/css')
+        .html(`
+            .fade-out {
+                opacity: 0;
+                transform: translateX(100px);
+                transition: all 0.3s ease;
+            }
+        `)
+        .appendTo('head');
+</script> 

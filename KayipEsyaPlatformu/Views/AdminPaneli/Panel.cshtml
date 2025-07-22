@@ -1,0 +1,128 @@
+@{
+    ViewBag.Title = "Yönetici Paneli";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+</head>
+<div class="container-fluid py-3">
+    <div class="row flex-lg-nowrap">
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <partial name="_Sidebar" />
+        </div>
+        <div class="col-12 col-lg-9">
+            <div id="admin-panel-icerik" class="main-content-container"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function adminPanelPartialYukle(aksiyon) {
+            $('#admin-panel-icerik').html(
+                '<div class="text-center text-muted py-5">' +
+                '<i class="fas fa-spinner fa-spin fa-2x"></i><br/>Yükleniyor...' +
+                '</div>');
+            $.ajax({
+                url: '/AdminPaneli/' + aksiyon,
+                type: 'GET',
+                success: function (data) {
+                    $('#admin-panel-icerik').html(data);
+                    // Eğer Eşyalar sekmesi yüklendiyse, esyalariYukle fonksiyonunu çağır
+                    if (aksiyon === 'Esyalar' && typeof esyalariYukle === 'function') {
+                        esyalariYukle();
+                    }
+                    // Kullanıcılar sekmesi için de fonksiyonu çağır
+                    if (aksiyon === 'Kullanicilar' && typeof kullanicilariYukle === 'function') {
+                        kullanicilariYukle();
+                    }
+                    // Kategoriler sekmesi için de fonksiyonu çağır
+                    if (aksiyon === 'Kategoriler' && typeof kategorileriYukle === 'function') {
+                        kategorileriYukle();
+                    }
+                    // Renkler sekmesi için de fonksiyonu çağır
+                    if (aksiyon === 'Renkler' && typeof renkleriYukle === 'function') {
+                        renkleriYukle();
+                    }
+                    // Eğer başka sekmelerde de JS fonksiyonu varsa, burada ekleyebilirsiniz
+                },
+                error: function () {
+                    $('#admin-panel-icerik').html('<div class="alert alert-danger">İçerik yüklenemedi.</div>');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // İlk açılışta Kullanıcılar sekmesi
+            adminPanelPartialYukle('Kullanicilar');
+
+            // Menüye tıklama ile partial yükle
+            $(document).on('click', '.sidebar-nav .nav-link', function (e) {
+                e.preventDefault();
+                $('.sidebar-nav .nav-link').removeClass('active');
+                $(this).addClass('active');
+                var aksiyon = $(this).data('action');
+                adminPanelPartialYukle(aksiyon);
+            });
+        });
+        // --- Eşyalar partial JS kodu ---
+        (function(){
+            let adminEsyaVeri = [];
+            window.esyalariYukle = function() {
+                $.get('/AdminPaneli/EsyalariGetir', function(data) {
+                    adminEsyaVeri = data;
+                    esyaFiltreleVeGoster();
+                });
+            }
+            function esyaFiltreleVeGoster() {
+                var arama = $('#esyaArama').val() ? $('#esyaArama').val().toLowerCase() : '';
+                var filtreli = adminEsyaVeri.filter(function(e) {
+                    return (
+                        e.baslik.toLowerCase().includes(arama) ||
+                        e.kategori.toLowerCase().includes(arama) ||
+                        e.durum.toLowerCase().includes(arama) ||
+                        e.kullaniciAdSoyad.toLowerCase().includes(arama)
+                    );
+                });
+                var html = '';
+                filtreli.forEach(function(e) {
+                    html += `<div class=\"admin-esya-card\">
+                        <div class=\"admin-esya-title\">${e.baslik}</div>
+                        <div class=\"admin-esya-date\">${e.tarih}</div>
+                        <div class=\"admin-esya-status\"><strong>Durum:</strong> <span class=\"badge bg-secondary\">${e.durum}</span></div>
+                        <div class=\"admin-esya-status\"><strong>Kategori:</strong> <span class=\"badge bg-success\">${e.kategori}</span></div>
+                        <div class=\"admin-esya-user\" onclick=\"kullaniciDetayGoster('${e.kullaniciId}')\">${e.kullaniciAdSoyad}</div>
+                        <div class=\"admin-esya-actions\">
+                            <button class=\"admin-btn-esya-edit\" onclick=\"adminEsyaDuzenle(${e.id})\">Düzenle</button>
+                            <button class=\"admin-btn-esya-sil\" onclick=\"esyaSil(${e.id})\">Sil</button>
+                        </div>
+                    </div>`;
+                });
+                $('#admin-esya-listesi').html(html);
+            }
+            window.esyaSil = function(id) {
+                if (!confirm('Bu eşyayı silmek istediğinize emin misiniz?')) return;
+                $.post('/AdminPaneli/EsyaSil', { id: id }, function(resp) {
+                    alert(resp.message);
+                    if (resp.success) esyalariYukle();
+                });
+            }
+            window.kullaniciDetayGoster = function(id) {
+                $('#kullaniciDetayIcerik').html('<div class="text-center py-4">Yükleniyor...</div>');
+                $('#kullaniciDetayModal').modal('show');
+                $.get('/AdminPaneli/KullaniciDetay?id=' + id, function(html) {
+                    $('#kullaniciDetayIcerik').html(html);
+                });
+            }
+            window.adminEsyaDuzenle = function(id) {
+                $('#modalEsyaEditContent').html('<div class="text-center py-5">Yükleniyor...</div>');
+                $('#adminEsyaEditModal').modal('show');
+                $.get('/AdminPaneli/EsyaDuzenle?id=' + id, function(html) {
+                    $('#modalEsyaEditContent').html(html);
+                });
+            }
+            $(document).on('input', '#esyaArama', esyaFiltreleVeGoster);
+        })();
+    </script>
+} 

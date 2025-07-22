@@ -1,0 +1,44 @@
+@{
+    var menu = new[] {
+        new { Action="Kullanicilar",      Icon="users",         Text="Kullanıcılar" },
+        new { Action="Esyalar",           Icon="box",           Text="Eşyalar" },
+        new { Action="Kategoriler",       Icon="tags",          Text="Kategoriler" },
+        new { Action="Renkler",           Icon="palette",       Text="Renkler" },
+        new { Action="Bildirimler",       Icon="bell",          Text="Bildirimler" },
+        new { Action="Mesajlar",          Icon="comments",      Text="Mesajlar" },
+        new { Action="Sayfalar",          Icon="file-alt",      Text="Sayfa Yönetimi" },
+        new { Action="IletisimMesajlari", Icon="envelope-open-text", Text="İletişim Mesajları" },
+        new { Action="Sehirler",          Icon="city",          Text="Şehirler" },
+        new { Action="Ilceler",           Icon="location-arrow",Text="İlçeler" },
+        new { Action="Mahalleler",        Icon="street-view",   Text="Mahalleler" }
+    };
+}
+
+<div class="sidebar-container">
+    <div class="sidebar-header">
+        <div class="sidebar-avatar"><i class="fas fa-user-shield"></i></div>
+        <h6 class="sidebar-name">@(User.Identity?.Name ?? "Admin")</h6>
+        <p class="sidebar-status"><i class="fas fa-circle"></i> Yönetici</p>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            @foreach (var item in menu)
+            {
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-action="@item.Action">
+                        <i class="nav-icon fas fa-@item.Icon"></i>
+                        <span class="nav-text">@item.Text</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+    <div class="sidebar-footer d-flex justify-content-center pb-4 pt-2">
+        <form asp-area="Identity" asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span>
+            </button>
+        </form>
+    </div>
+</div> 

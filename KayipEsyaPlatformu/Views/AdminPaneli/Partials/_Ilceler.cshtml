@@ -1,0 +1,216 @@
+<style>
+    .admin-panel-table { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table th { background: #22345a; color: #b8cbfa; font-weight: 600; cursor: pointer; user-select: none; }
+    .admin-panel-table td { background: #162a46; color: #f7f8fa; }
+    .admin-panel-table tr { border-bottom: 1px solid #233563; transition: background-color 0.2s; }
+    .admin-panel-table tr:hover { background-color: #1e3a5a !important; }
+    .admin-panel-table tr:last-child { border-bottom: none; }
+    .admin-panel-table .btn-danger, .admin-panel-table .btn-warning { border-radius: 0.5rem; font-weight: 600; padding: 0.4em 1.1em; font-size: 0.98rem; }
+    .admin-panel-search { margin-bottom: 1.2rem; max-width: 350px; }
+    .admin-panel-add-btn { background: #3f68f9; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; margin-bottom: 1.2rem; }
+    .admin-panel-add-btn:hover { background: #2238a8; color: #fff; }
+    .ilce-ad { cursor: pointer; color: #66ccff; text-decoration: underline; }
+    .ilce-ad:hover { color: #99ddff; }
+</style>
+<div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+    <select class="form-select admin-panel-search" id="ilceSehirSec" style="max-width: 250px;"></select>
+    <input type="text" class="form-control admin-panel-search" id="ilceArama" placeholder="İlçe ara..." />
+    <button class="btn admin-panel-add-btn" onclick="ilceEkleModalAc()">
+        <i class="fas fa-plus me-2"></i>Yeni İlçe Ekle
+    </button>
+</div>
+<table class="table admin-panel-table table-bordered align-middle" id="ilceler-tablosu">
+    <thead>
+        <tr>
+            <th onclick="ilceTabloSirala(0)">#</th>
+            <th onclick="ilceTabloSirala(1)">İlçe Adı</th>
+            <th onclick="ilceTabloSirala(2)">Şehir</th>
+            <th onclick="ilceTabloSirala(3)">Mahalle Sayısı</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<!-- Ekle Modal -->
+<div class="modal fade" id="ilceEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni İlçe Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ilceEkleForm">
+                    <div class="mb-3">
+                        <label for="ilceSehirEkle" class="form-label">Şehir</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="ilceSehirEkle" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ilceAd" class="form-label">İlçe Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="ilceAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="ilceEkle()">Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Düzenle Modal -->
+<div class="modal fade" id="ilceDuzenleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>İlçe Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ilceDuzenleForm">
+                    <input type="hidden" id="duzenleIlceId">
+                    <div class="mb-3">
+                        <label for="duzenleIlceSehir" class="form-label">Şehir</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="duzenleIlceSehir" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duzenleIlceAd" class="form-label">İlçe Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="duzenleIlceAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-warning" onclick="ilceDuzenle()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function(){
+let ilceTabloVeri = [];
+let ilceTabloSiralaKriter = 0;
+let ilceTabloSiralaAsc = true;
+let sehirlerCache = [];
+let seciliSehirId = null;
+function sehirleriYukleDropdown(cb) {
+    $.get('/AdminPaneli/SehirleriGetir', function(data) {
+        sehirlerCache = data;
+        let html = '';
+        data.forEach(function(s) {
+            html += `<option value="${s.id}">${s.ad}</option>`;
+        });
+        $('#ilceSehirSec').html('<option value="">Tüm Şehirler</option>' + html);
+        $('#ilceSehirEkle').html(html);
+        $('#duzenleIlceSehir').html(html);
+        if(cb) cb();
+    });
+}
+function ilceleriYukle() {
+    $.get('/AdminPaneli/IlceleriGetir', function(data) {
+        ilceTabloVeri = data;
+        ilceTabloFiltreleVeGoster();
+    });
+}
+function ilceTabloFiltreleVeGoster() {
+    var arama = $('#ilceArama').val().toLowerCase();
+    var sehirId = $('#ilceSehirSec').val();
+    var filtreli = ilceTabloVeri.filter(function(i) {
+        var sehirMatch = !sehirId || i.sehirId == sehirId;
+        return sehirMatch && (i.ad.toLowerCase().includes(arama) || i.sehirAd.toLowerCase().includes(arama));
+    });
+    filtreli.sort(function(a, b) {
+        let alanlar = ['id','ad','sehirAd','mahalleSayisi'];
+        let key = alanlar[ilceTabloSiralaKriter];
+        let valA = a[key];
+        let valB = b[key];
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return ilceTabloSiralaAsc ? -1 : 1;
+        if (valA > valB) return ilceTabloSiralaAsc ? 1 : -1;
+        return 0;
+    });
+    var tbody = '';
+    filtreli.forEach(function(i, idx) {
+        tbody += `<tr>
+            <td>${idx+1}</td>
+            <td><span class="ilce-ad" onclick="ilceDuzenleModalAc(${i.id}, '${i.ad}', ${i.sehirId})">${i.ad}</span></td>
+            <td>${i.sehirAd}</td>
+            <td><span class="badge bg-info">${i.mahalleSayisi}</span></td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="ilceDuzenleModalAc(${i.id}, '${i.ad}', ${i.sehirId})"><i class="fas fa-edit"></i> Düzenle</button>
+                <button class="btn btn-danger btn-sm" onclick="ilceSil(${i.id})"><i class="fas fa-trash"></i> Sil</button>
+            </td>
+        </tr>`;
+    });
+    $('#ilceler-tablosu tbody').html(tbody);
+}
+function ilceSil(id) {
+    if (!confirm('Bu ilçeyi silmek istediğinize emin misiniz?')) return;
+    $.post('/AdminPaneli/IlceSil', { id: id }, function(resp) {
+        alert(resp.message);
+        if (resp.success) ilceleriYukle();
+    });
+}
+window.ilceTabloSirala = function(kriter) {
+    if (ilceTabloSiralaKriter === kriter) {
+        ilceTabloSiralaAsc = !ilceTabloSiralaAsc;
+    } else {
+        ilceTabloSiralaAsc = true;
+    }
+    ilceTabloSiralaKriter = kriter;
+    ilceTabloFiltreleVeGoster();
+}
+window.ilceEkleModalAc = function() {
+    $('#ilceAd').val('');
+    // Şehir dropdown'u güncel tut
+    sehirleriYukleDropdown(function(){
+        // Eğer tablo başında şehir seçiliyse, ekle modalında da onu seçili yap
+        var secili = $('#ilceSehirSec').val();
+        if(secili) $('#ilceSehirEkle').val(secili);
+        $('#ilceEkleModal').modal('show');
+    });
+}
+window.ilceEkle = function() {
+    var ad = $('#ilceAd').val().trim();
+    var sehirId = $('#ilceSehirEkle').val();
+    if (!ad) { alert('İlçe adı boş olamaz.'); return; }
+    if (!sehirId) { alert('Şehir seçmelisiniz.'); return; }
+    $.post('/AdminPaneli/IlceEkle', { ad: ad, sehirId: sehirId }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#ilceEkleModal').modal('hide');
+            ilceleriYukle();
+        }
+    });
+}
+window.ilceDuzenleModalAc = function(id, ad, sehirId) {
+    $('#duzenleIlceId').val(id);
+    sehirleriYukleDropdown(function(){
+        $('#duzenleIlceAd').val(ad);
+        $('#duzenleIlceSehir').val(sehirId);
+        $('#ilceDuzenleModal').modal('show');
+    });
+}
+window.ilceDuzenle = function() {
+    var id = $('#duzenleIlceId').val();
+    var ad = $('#duzenleIlceAd').val().trim();
+    var sehirId = $('#duzenleIlceSehir').val();
+    if (!ad) { alert('İlçe adı boş olamaz.'); return; }
+    if (!sehirId) { alert('Şehir seçmelisiniz.'); return; }
+    $.post('/AdminPaneli/IlceDuzenle', { id: id, ad: ad, sehirId: sehirId }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#ilceDuzenleModal').modal('hide');
+            ilceleriYukle();
+        }
+    });
+}
+$('#ilceArama').on('input', ilceTabloFiltreleVeGoster);
+$('#ilceSehirSec').on('change', ilceTabloFiltreleVeGoster);
+$(function(){
+    sehirleriYukleDropdown();
+    ilceleriYukle();
+});
+})();
+</script> 

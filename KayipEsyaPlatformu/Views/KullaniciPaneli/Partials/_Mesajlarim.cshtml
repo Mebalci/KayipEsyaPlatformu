@@ -1,0 +1,100 @@
+@model List<KayipEsyaPlatformu.Models.Eslesme>
+@using KayipEsyaPlatformu.Models;
+
+<style>
+    .match-list { margin-top: 1.5rem; }
+    .match-card {
+        background: #0d1c33;
+        border-radius: 1.2rem;
+        box-shadow: 0 4px 24px rgba(50,111,166,0.10);
+        border: 1.5px solid #253a61;
+        color: #e5eaf6;
+        margin-bottom: 1.2rem;
+        padding: 1.2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    .match-title { font-size: 1.1rem; font-weight: 700; color: #326fa6; }
+    .match-users { font-size: 1rem; color: #c7d3e6; }
+    .btn-chat {
+        background: #326fa6;
+        color: #fff;
+        border-radius: 0.7rem;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
+        transition: background 0.18s;
+    }
+    .btn-chat:hover { background: #204a7a; color: #fff; }
+</style>
+
+<h2 class="mb-4" style="font-weight:700; color:#fff;">
+    <i class="fas fa-comments me-2"></i> Mesajlarım
+</h2>
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-info-circle me-2"></i>
+        Henüz eşleşmiş bir ürününüz yok.
+    </div>
+}
+else
+{
+    <div class="match-list">
+        @{
+            var okunmamislar = ViewBag.Okunmamislar as Dictionary<int, int>;
+        }
+        @foreach (var eslesme in Model)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var digerKullanici = eslesme.IlkEsya.KullaniciId == userId ? eslesme.EslesenEsya.Kullanici : eslesme.IlkEsya.Kullanici;
+            <div class="match-card">
+                <div class="match-title">
+                    <i class="fas fa-link me-1"></i> Eşleşme - Benzerlik: @(eslesme.BenzerlikOrani.ToString("P0"))
+                </div>
+                <div class="match-users">
+                    <b>Karşı taraf:</b> @digerKullanici.Ad @digerKullanici.Soyad (@digerKullanici.Email)
+                </div>
+                <div class="match-users">
+                    <b>İlanlar:</b> @eslesme.IlkEsya.Baslik <i class="fas fa-arrows-alt-h mx-1"></i> @eslesme.EslesenEsya.Baslik
+                </div>
+                <button class="btn btn-chat position-relative" onclick="openChatModal(@eslesme.Id)">
+                    <i class="fas fa-comments me-1"></i> Sohbeti Aç
+                    @if (okunmamislar != null && okunmamislar.ContainsKey(eslesme.Id) && okunmamislar[eslesme.Id] > 0)
+                    {
+                        <span id="mesaj-badge-@eslesme.Id" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.9rem;">@okunmamislar[eslesme.Id]</span>
+                    }
+                    else
+                    {
+                        <span id="mesaj-badge-@eslesme.Id" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;font-size:0.9rem;">0</span>
+                    }
+                </button>
+            </div>
+        }
+    </div>
+}
+
+<!-- Sohbet Modalı -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="chatModalContent">
+            <!-- Sohbet içeriği AJAX ile yüklenecek -->
+        </div>
+    </div>
+</div>
+
+<script>
+function openChatModal(eslesmeId) {
+    $('#chatModalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x"></i><br/>Yükleniyor...</div>');
+    $.get('/Mesajlasma/Sohbet?eslesmeId=' + eslesmeId, function(html) {
+        $('#chatModalContent').html(html);
+        var modal = new bootstrap.Modal($('#chatModal')[0]);
+        modal.show();
+    });
+    // Sadece kullanıcı panelinde badge'i sıfırla ve gizle
+    if (!window.isAdminPanel) {
+        $('#mesaj-badge-' + eslesmeId).text('0').hide();
+    }
+}
+</script> 

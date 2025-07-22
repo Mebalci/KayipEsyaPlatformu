@@ -1,0 +1,65 @@
+@model List<KayipEsyaPlatformu.Models.Mesaj>
+@{
+    var digerKullanici = ViewBag.DigerKullanici;
+    var kendiAd = ViewBag.KendiAd as string;
+    var kendiSoyad = ViewBag.KendiSoyad as string;
+    var eslesmeId = (int)ViewBag.EslesmeId;
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    string GetInitials(string ad, string soyad) => (ad?.FirstOrDefault().ToString() ?? "") + (soyad?.FirstOrDefault().ToString() ?? "");
+}
+<div style="border-radius: 1.2rem;">
+
+</div>
+    <div class="chat-header" >
+        <div class="chat-header-content">
+            <div class="header-avatar">@GetInitials(digerKullanici.Ad, digerKullanici.Soyad)</div>
+            <div class="header-info">
+                <h3>@digerKullanici.Ad @digerKullanici.Soyad ile Sohbet</h3>
+                <div class="header-status">
+                    <div class="status-dot"></div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        @foreach (var mesaj in Model)
+        {
+            var isMe = mesaj.GonderenId == userId;
+            var ad = isMe ? kendiAd : digerKullanici.Ad;
+            var soyad = isMe ? kendiSoyad : digerKullanici.Soyad;
+            <div class="chat-message @(isMe ? "me" : "")">
+                <div class="message-avatar">@GetInitials(ad, soyad)</div>
+                <div class="message-content">
+                    <div class="message-bubble">@mesaj.Icerik</div>
+                    <div class="message-time">@((isMe ? "Siz" : ad) + " - " + mesaj.Tarih.ToString("dd.MM.yyyy HH:mm"))</div>
+                </div>
+            </div>
+        }
+        <div class="typing-indicator" style="display: none;">
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <span>yazıyor...</span>
+        </div>
+    </div>
+    <div class="chat-input-container">
+        <div class="input-wrapper">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Mesajınızı yazın..." autocomplete="off" />
+            <button class="send-button" id="btnSendMessage">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+<script src="/js/mesajlasma.js"></script>
+<script>
+    $(function() {
+        initChat(@eslesmeId, '@userId', '@digerKullanici.Ad', '@digerKullanici.Soyad', '@kendiAd', '@kendiSoyad');
+        
+        var chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    });
+</script> 

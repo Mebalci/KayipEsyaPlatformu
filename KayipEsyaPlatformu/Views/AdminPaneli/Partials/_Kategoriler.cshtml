@@ -1,0 +1,272 @@
+<style>
+    .admin-panel-card {
+        background: #162a46;
+        border-radius: 1.2rem;
+        box-shadow: 0 8px 32px rgba(31,63,140,0.13);
+        color: #f7f8fa;
+        border: 1.5px solid #233563;
+    }
+    .admin-panel-card .card-header {
+        background: #233563;
+        color: #fff;
+        border-radius: 1.2rem 1.2rem 0 0;
+        font-weight: 600;
+        font-size: 1.18rem;
+        border-bottom: 1.5px solid #22345a;
+    }
+    .admin-panel-table {
+        background: #162a46;
+        color: #f7f8fa;
+    }
+    .admin-panel-table th {
+        background: #22345a;
+        color: #b8cbfa;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+    }
+    .admin-panel-table td {
+        background: #162a46;
+        color: #f7f8fa;
+    }
+    .admin-panel-table tr {
+        border-bottom: 1px solid #233563;
+        transition: background-color 0.2s;
+    }
+    .admin-panel-table tr:hover {
+        background-color: #1e3a5a !important;
+    }
+    .admin-panel-table tr:last-child {
+        border-bottom: none;
+    }
+    .admin-panel-table .btn-danger {
+        border-radius: 0.5rem;
+        font-weight: 600;
+        padding: 0.4em 1.1em;
+        font-size: 0.98rem;
+    }
+    .admin-panel-table .btn-warning {
+        border-radius: 0.5rem;
+        font-weight: 600;
+        padding: 0.4em 1.1em;
+        font-size: 0.98rem;
+        margin-right: 0.5rem;
+    }
+    .admin-panel-search {
+        margin-bottom: 1.2rem;
+        max-width: 350px;
+    }
+    .admin-panel-add-btn {
+        background: #3f68f9;
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+    }
+    .admin-panel-add-btn:hover {
+        background: #2238a8;
+        color: #fff;
+    }
+    .kategori-ad {
+        cursor: pointer;
+        color: #66ccff;
+        text-decoration: underline;
+    }
+    .kategori-ad:hover {
+        color: #99ddff;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="text" class="form-control admin-panel-search" id="kategoriArama" placeholder="Kategori ara..." />
+    <button class="btn admin-panel-add-btn" onclick="kategoriEkleModalAc()">
+        <i class="fas fa-plus me-2"></i>Yeni Kategori Ekle
+    </button>
+</div>
+
+<table class="table admin-panel-table table-bordered align-middle" id="kategoriler-tablosu">
+    <thead>
+        <tr>
+            <th onclick="kategoriTabloSirala(0)">#</th>
+            <th onclick="kategoriTabloSirala(1)">Kategori Adı</th>
+            <th onclick="kategoriTabloSirala(2)">Eşya Sayısı</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Kategori verileri AJAX ile yüklenecek -->
+    </tbody>
+</table>
+
+<!-- Kategori Ekleme Modal -->
+<div class="modal fade" id="kategoriEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni Kategori Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="kategoriEkleForm">
+                    <div class="mb-3">
+                        <label for="kategoriAd" class="form-label">Kategori Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="kategoriAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="kategoriEkle()">Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kategori Düzenleme Modal -->
+<div class="modal fade" id="kategoriDuzenleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Kategori Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="kategoriDuzenleForm">
+                    <input type="hidden" id="duzenleKategoriId">
+                    <div class="mb-3">
+                        <label for="duzenleKategoriAd" class="form-label">Kategori Adı</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="duzenleKategoriAd" required maxlength="50">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-warning" onclick="kategoriDuzenle()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+let kategoriTabloVeri = [];
+let kategoriTabloSiralaKriter = 0;
+let kategoriTabloSiralaAsc = true;
+
+function kategorileriYukle() {
+    $.get('/AdminPaneli/KategorileriGetir', function(data) {
+        kategoriTabloVeri = data;
+        kategoriTabloFiltreleVeGoster();
+    });
+}
+
+function kategoriTabloFiltreleVeGoster() {
+    var arama = $('#kategoriArama').val().toLowerCase();
+    var filtreli = kategoriTabloVeri.filter(function(k) {
+        return k.ad.toLowerCase().includes(arama);
+    });
+    
+    // Sıralama
+    filtreli.sort(function(a, b) {
+        let alanlar = ['id','ad','esyaSayisi'];
+        let key = alanlar[kategoriTabloSiralaKriter];
+        let valA = a[key];
+        let valB = b[key];
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return kategoriTabloSiralaAsc ? -1 : 1;
+        if (valA > valB) return kategoriTabloSiralaAsc ? 1 : -1;
+        return 0;
+    });
+    
+    var tbody = '';
+    filtreli.forEach(function(k, i) {
+        tbody += `<tr>
+            <td>${i+1}</td>
+            <td><span class="kategori-ad" onclick="kategoriDuzenleModalAc(${k.id}, '${k.ad}')">${k.ad}</span></td>
+            <td><span class="badge bg-info">${k.esyaSayisi}</span></td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="kategoriDuzenleModalAc(${k.id}, '${k.ad}')">
+                    <i class="fas fa-edit"></i> Düzenle
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="kategoriSil(${k.id})">
+                    <i class="fas fa-trash"></i> Sil
+                </button>
+            </td>
+        </tr>`;
+    });
+    $('#kategoriler-tablosu tbody').html(tbody);
+}
+
+function kategoriSil(id) {
+    if (!confirm('Bu kategoriyi silmek istediğinize emin misiniz?')) return;
+    $.post('/AdminPaneli/KategoriSil', { id: id }, function(resp) {
+        alert(resp.message);
+        if (resp.success) kategorileriYukle();
+    });
+}
+
+window.kategoriTabloSirala = function(kriter) {
+    if (kategoriTabloSiralaKriter === kriter) {
+        kategoriTabloSiralaAsc = !kategoriTabloSiralaAsc;
+    } else {
+        kategoriTabloSiralaAsc = true;
+    }
+    kategoriTabloSiralaKriter = kriter;
+    kategoriTabloFiltreleVeGoster();
+}
+
+window.kategoriEkleModalAc = function() {
+    $('#kategoriAd').val('');
+    $('#kategoriEkleModal').modal('show');
+}
+
+window.kategoriEkle = function() {
+    var ad = $('#kategoriAd').val().trim();
+    if (!ad) {
+        alert('Kategori adı boş olamaz.');
+        return;
+    }
+    
+    $.post('/AdminPaneli/KategoriEkle', { ad: ad }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#kategoriEkleModal').modal('hide');
+            kategorileriYukle();
+        }
+    });
+}
+
+window.kategoriDuzenleModalAc = function(id, ad) {
+    $('#duzenleKategoriId').val(id);
+    $('#duzenleKategoriAd').val(ad);
+    $('#kategoriDuzenleModal').modal('show');
+}
+
+window.kategoriDuzenle = function() {
+    var id = $('#duzenleKategoriId').val();
+    var ad = $('#duzenleKategoriAd').val().trim();
+    
+    if (!ad) {
+        alert('Kategori adı boş olamaz.');
+        return;
+    }
+    
+    $.post('/AdminPaneli/KategoriDuzenle', { id: id, ad: ad }, function(resp) {
+        alert(resp.message);
+        if (resp.success) {
+            $('#kategoriDuzenleModal').modal('hide');
+            kategorileriYukle();
+        }
+    });
+}
+
+$('#kategoriArama').on('input', kategoriTabloFiltreleVeGoster);
+
+$(function(){
+    kategorileriYukle();
+});
+})();
+</script> 

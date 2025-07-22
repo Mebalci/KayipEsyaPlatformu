@@ -1,0 +1,138 @@
+﻿@model List<KayipEsyaPlatformu.Models.Bildirim>
+
+@section Styles {
+    <style>
+        .notification-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .notification-item {
+            background-color: #1e3a5c;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+            .notification-item:hover {
+                transform: translateX(5px);
+            }
+
+            .notification-item.unread {
+                background-color: #132e4c;
+                border-left: 4px solid #3f68f9;
+            }
+
+            .notification-item.read {
+                background-color: #1e3a5c;
+                opacity: 0.8;
+            }
+
+        .notification-content {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-time {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+
+        .btn-mark-read {
+            background-color: transparent;
+            border: 1px solid #3f68f9;
+            color: #3f68f9;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+            .btn-mark-read:hover {
+                background-color: #3f68f9;
+                color: white;
+            }
+
+        .btn-mark-all {
+            background-color: #3f68f9;
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+            .btn-mark-all:hover {
+                background-color: #355be0;
+                transform: translateY(-2px);
+            }
+    </style>
+}
+
+<div class="container py-4">
+    <div class="notification-list">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-white mb-0">
+                <i class="bi bi-bell me-2"></i>
+                Bildirimler
+            </h3>
+            <button class="btn-mark-all" onclick="tumunuOkunduYap()">
+                <i class="bi bi-check-all me-2"></i>
+                Tümünü Okundu Yap
+            </button>
+        </div>
+
+        @if (Model.Any())
+        {
+            @foreach (var b in Model)
+            {
+                <div class="notification-item @(b.OkunduMu ? "read" : "unread")">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="notification-content">@b.Icerik</div>
+                            <div class="notification-time">
+                                <i class="bi bi-clock me-1"></i>
+                                @b.Tarih.ToString("g")
+                            </div>
+                        </div>
+                        @if (!b.OkunduMu)
+                        {
+                            <button class="btn-mark-read" onclick="okunduYap(@b.Id)">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Okundu
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-bell-slash display-1 text-muted"></i>
+                <p class="text-light mt-3">Henüz hiç bildiriminiz bulunmamaktadır.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function okunduYap(id) {
+            fetch('/Bildirim/OkunduYap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(id)
+            }).then(() => location.reload());
+        }
+
+        function tumunuOkunduYap() {
+            fetch('/Bildirim/TumunuOkunduYap', { method: 'POST' })
+                .then(() => location.reload());
+        }
+    </script>
+}
