@@ -36,3 +36,4 @@ Proje ASP.NET Core MVC ile geliştirilmiş olup Python tabanlı bir Flask servis
 
 <img width="843" height="932" alt="image" src="https://github.com/user-attachments/assets/8d2049df-b3d7-4830-bcfb-f8401b440c51" />
 
+<img width="1654" height="926" alt="image" src="https://github.com/user-attachments/assets/20d7c931-c874-451f-b848-8980eb3db11c" />
