@@ -31,3 +31,8 @@ Proje ASP.NET Core MVC ile geliştirilmiş olup Python tabanlı bir Flask servis
 | Deployment   | Railway / Render / GitHub Actions |
 
 ---
+
+<img width="1695" height="930" alt="image" src="https://github.com/user-attachments/assets/f63f279d-8acb-400d-8358-39da4bbbb163" />
+
+<img width="843" height="932" alt="image" src="https://github.com/user-attachments/assets/8d2049df-b3d7-4830-bcfb-f8401b440c51" />
+
